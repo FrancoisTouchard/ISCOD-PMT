@@ -1,0 +1,35 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+*.log
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Java
+*.class
+
+# Environment files
+*.env
+*.env.*
+
+# H2 database files
+*.mv.db
+*.h2.db
+data/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
