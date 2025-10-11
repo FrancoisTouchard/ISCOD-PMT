@@ -4,8 +4,8 @@ import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.iscod.pmt.models.User;
+import com.iscod.pmt.models.Utilisateur;
 
-public interface UserRepository extends CrudRepository<User, UUID> {
+public interface UtilisateurRepository extends CrudRepository<Utilisateur, UUID> {
 
 }
