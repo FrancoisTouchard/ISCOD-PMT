@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iscod.pmt.exceptions.ResourceNotFoundException;
 import com.iscod.pmt.models.Utilisateur;
 import com.iscod.pmt.repositories.UtilisateurRepository;
 import com.iscod.pmt.services.UtilisateurService;
@@ -33,7 +34,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 			return utilisateurRepository.findById(id).get();
 		}
 		
-		return utilisateurRepository.findById(id).orElseThrow(com.iscod.pmt.exceptions.ResourceNotFoundException::new);
+		return utilisateurRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
 	}
 
 	@Override
