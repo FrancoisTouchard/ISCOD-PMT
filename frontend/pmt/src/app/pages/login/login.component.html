@@ -1,0 +1,65 @@
+<nav class="navbar header bg-primary">
+  <div class="container-fluid">
+    <div>
+      <button class="btn btn-secondary" (click)="goToSigninPage()">
+        Inscription
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <h1 class="mb-3">Connexion</h1>
+  <form
+    [formGroup]="loginForm"
+    (ngSubmit)="onSubmit()"
+    [ngClass]="{ submitted: submitted }"
+  >
+    <div formGroupName="userData">
+      <div class="mb-3">
+        <label for="inputEmail" class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          id="inputEmail"
+          formControlName="email"
+          placeholder="Votre adresse email"
+        />
+        <div class="invalid-feedback" *ngIf="submitted && email.invalid">
+          <ng-container *ngIf="email.errors?.['required']">
+            Veuillez renseigner un email
+          </ng-container>
+          <ng-container *ngIf="email.errors?.['email']">
+            L'email n'est pas valide
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="inputPassword" class="form-label">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="inputPassword"
+          formControlName="password"
+          placeholder="Votre mot de passe"
+        />
+        <div class="invalid-feedback" *ngIf="submitted && password.invalid">
+          <ng-container *ngIf="password.errors?.['required']">
+            Veuillez renseigner un mot de passe
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <ng-container *ngIf="loginForm.errors?.['invalidCredentials']">
+      <div class="alert alert-danger mt-2">
+        Identifiants incorrects. Merci de réessayer.
+      </div>
+    </ng-container>
+
+    <div class="text-center">
+      <button class="btn btn-primary" type="submit">Se connecter</button>
+    </div>
+  </form>
+</div>

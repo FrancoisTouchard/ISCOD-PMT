@@ -1,0 +1,75 @@
+<nav class="navbar header bg-primary">
+  <div class="container-fluid">
+    <div>
+      <button class="btn btn-primary" (click)="goToLoginPage()">
+        Connexion
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <h1 class="mb-3">Inscription</h1>
+  <form
+    [formGroup]="loginForm"
+    (ngSubmit)="onSubmit()"
+    [ngClass]="{ submitted: submitted }"
+  >
+    <div formGroupName="userData">
+      <div class="mb-3">
+        <label for="name" class="form-label">Nom</label>
+        <input
+          id="inputName"
+          type="text"
+          class="form-control"
+          formControlName="name"
+        />
+        <div class="invalid-feedback" *ngIf="submitted && name.invalid">
+          <ng-container *ngIf="name.errors?.['required']">
+            Veuillez renseigner un nom
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="inputEmail" class="form-label">Email</label>
+        <input
+          id="inputEmail"
+          type="email"
+          class="form-control"
+          formControlName="email"
+        />
+        <div class="invalid-feedback" *ngIf="submitted && email.invalid">
+          <ng-container *ngIf="email.errors?.['required']">
+            Veuillez renseigner un email
+          </ng-container>
+          <ng-container *ngIf="email.errors?.['email']">
+            L'email n'est pas valide
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="inputPassword" class="form-label">Mot de passe</label>
+        <input
+          id="inputPassword"
+          type="password"
+          class="form-control"
+          formControlName="password"
+        />
+        <div class="invalid-feedback" *ngIf="submitted && password.invalid">
+          <ng-container *ngIf="password.errors?.['required']">
+            Veuillez renseigner un mot de passe
+          </ng-container>
+          <ng-container *ngIf="password.errors?.['minlength']">
+            Le mot de passe doit contenir au moins 6 caractères
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-primary" type="submit">S'inscrire</button>
+    </div>
+  </form>
+</div>

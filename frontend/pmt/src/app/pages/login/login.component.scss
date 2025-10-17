@@ -1,0 +1,6 @@
+form.submitted input.ng-invalid {
+  border: 1px solid red;
+}
+form.submitted .invalid-feedback {
+  display: block;
+}
