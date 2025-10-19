@@ -41,6 +41,11 @@ public class ProjetController {
 		return projetService.findById(id);
 	}
 	
+	@GetMapping("/mes-projets/{userId}")
+	public List<Projet> getProjetsByUtilisateurId(@PathVariable UUID userId) {
+	    return projetService.getProjetsByUtilisateurId(userId);
+	}
+	
 	@PostMapping
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public Projet create(@RequestBody Projet projet, @RequestParam UUID createurId) {

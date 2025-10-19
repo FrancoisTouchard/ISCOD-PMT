@@ -10,5 +10,7 @@ public interface ContributeurService {
     List<Contributeur> findByIdIdProjet(UUID idProjet);
     
     List<Contributeur> findByIdIdUtilisateur(UUID idUtilisateur);
+    
+    Contributeur create(Contributeur contributeur);
 
 }

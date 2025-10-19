@@ -9,6 +9,7 @@ import com.iscod.pmt.models.Contributeur;
 import com.iscod.pmt.models.ContributeurId;
 
 public interface ContributeurRepository extends CrudRepository<Contributeur, ContributeurId> {
+	// Implémentation générée automatiquement via le nom de méthode
     List<Contributeur> findByIdIdProjet(UUID idProjet);
     List<Contributeur> findByIdIdUtilisateur(UUID idUtilisateur);
 

@@ -15,8 +15,8 @@ import com.iscod.pmt.models.Contributeur;
 import com.iscod.pmt.models.Projet;
 import com.iscod.pmt.models.Role;
 import com.iscod.pmt.models.Utilisateur;
-import com.iscod.pmt.repositories.ContributeurRepository;
 import com.iscod.pmt.repositories.ProjetRepository;
+import com.iscod.pmt.services.ContributeurService;
 import com.iscod.pmt.services.ProjetService;
 import com.iscod.pmt.services.UtilisateurService;
 
@@ -28,7 +28,7 @@ public class ProjetServiceImpl implements ProjetService {
 	private ProjetRepository projetRepository;
 	
 	@Autowired
-	private ContributeurRepository contributeurRepository;
+	private ContributeurService contributeurService;
 	
 	@Autowired
 	private UtilisateurService utilisateurService;
@@ -64,7 +64,7 @@ public class ProjetServiceImpl implements ProjetService {
 	    
 	    // création du contributeur (admin) en même temps que la création du projet
 	    Contributeur contributeurAdmin = new Contributeur(createur, projetToSave, Role.ADMINISTRATEUR);
-	    contributeurRepository.save(contributeurAdmin);
+	    contributeurService.create(contributeurAdmin);
 	    
 	    return projetToSave;
 	}
@@ -103,6 +103,18 @@ public class ProjetServiceImpl implements ProjetService {
 	@Override
 	public void deleteById(UUID id) {
 		projetRepository.deleteById(id);
+	}
+
+	@Override
+	public List<Projet> getProjetsByUtilisateurId(UUID userId) {
+		// Récupérer toutes les instances de Contributeur rattachées à un utilisateur
+	    List<Contributeur> contributeurs = contributeurService.findByIdIdUtilisateur(userId);
+	    
+	    List<Projet> projets = new ArrayList<>();
+	    for (Contributeur contributeur : contributeurs) {
+	        projets.add(contributeur.getProjet());
+	    }
+	    return projets;
 	}
 
 

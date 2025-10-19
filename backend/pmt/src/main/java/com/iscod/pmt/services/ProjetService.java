@@ -20,4 +20,6 @@ public interface ProjetService {
 
 	void deleteById(UUID id);
 
+	List<Projet> getProjetsByUtilisateurId(UUID userId);
+
 }
