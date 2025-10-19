@@ -7,10 +7,14 @@ import { Projet } from '../models/projet.model';
 const API_URL = 'http://localhost:8080/';
 
 export interface PostUserResponse extends User {}
+export interface PostProjetResponse extends Projet {}
 
 export interface GetUserResponse extends User {
   projets: Projet[];
 }
+
+export interface GetProjetsResponse extends Projet {}
+export interface DeleteProjetsResponse extends Projet {}
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +37,24 @@ export class ApiService {
   deleteUser(id: string) {
     return this.httpClient
       .delete(`${API_URL}users/${id}`)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  getProjectsByContributeur(userId: string) {
+    return this.httpClient
+      .get<GetProjetsResponse[]>(`${API_URL}projets/mes-projets/${userId}`)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  postProjet(projet: Projet) {
+    return this.httpClient
+      .post<Projet>(`${API_URL}projets`, projet)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  deleteProject(id: string) {
+    return this.httpClient
+      .delete<DeleteProjetsResponse[]>(`${API_URL}projets/${id}`)
       .pipe(catchError((error) => this.handleError(error)));
   }
 

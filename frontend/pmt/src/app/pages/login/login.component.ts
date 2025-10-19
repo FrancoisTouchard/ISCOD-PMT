@@ -51,7 +51,7 @@ export class LoginComponent {
       );
 
       if (matchingUser) {
-        this.authService.login();
+        this.authService.login(matchingUser.id);
         this.router.navigate(['home']);
       } else {
         this.loginForm.setErrors({ invalidCredentials: true });
