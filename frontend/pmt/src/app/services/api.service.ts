@@ -1,20 +1,15 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpParams,
-} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
-import { LocalUser } from './user.service';
+import { LocalUser, User } from '../models/user.model';
+import { Projet } from '../models/projet.model';
 
 const API_URL = 'http://localhost:8080/';
 
-export interface PostResponse {
-  name: string;
-}
+export interface PostUserResponse extends User {}
 
-export interface GetUserResponse {
-  [key: string]: LocalUser;
+export interface GetUserResponse extends User {
+  projets: Projet[];
 }
 
 @Injectable({
@@ -23,28 +18,26 @@ export interface GetUserResponse {
 export class ApiService {
   constructor(private httpClient: HttpClient) {}
 
-  catchError(error: HttpErrorResponse) {
-    alert(error.error.error);
-    return throwError(() => error);
-  }
-
   postUser(user: LocalUser) {
     return this.httpClient
-      .post<PostResponse>(`${API_URL}users`, user)
-      .pipe(catchError(this.catchError));
+      .post<PostUserResponse>(`${API_URL}users`, user)
+      .pipe(catchError((error) => this.handleError(error)));
   }
 
   getUsers() {
-    let queryParams = new HttpParams();
-    queryParams = queryParams.set('filter', true);
     return this.httpClient
-      .get<GetUserResponse>(`${API_URL}users`)
-      .pipe(catchError(this.catchError));
+      .get<GetUserResponse[]>(`${API_URL}users`)
+      .pipe(catchError((error) => this.handleError(error)));
   }
 
   deleteUser(id: string) {
     return this.httpClient
       .delete(`${API_URL}users/${id}`)
-      .pipe(catchError(this.catchError));
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    console.error('Erreur API:', error);
+    return throwError(() => error);
   }
 }
