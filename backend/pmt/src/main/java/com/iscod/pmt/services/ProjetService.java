@@ -10,10 +10,10 @@ public interface ProjetService {
 
 	List<Projet> findAll();
 
-	UUID create(Projet projet);
-
 	Projet findById(UUID id);
 
+	Projet create(Projet projet, UUID createurId);
+	
 	void update(UUID id, Projet projet);
 
 	void partialUpdate(UUID id, Map<String, Object> updates);

@@ -30,10 +30,9 @@ public class Utilisateur {
 	private String password;
 	
 	
-	@OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL)
-	@JsonManagedReference
+	@OneToMany(mappedBy = "createur", cascade = CascadeType.ALL)
+	@JsonManagedReference("createur")
 	private Set<Projet> projets = new HashSet<Projet>();
-	
 
 	
 	public UUID getId() {
@@ -52,16 +51,6 @@ public class Utilisateur {
 		this.nom = nom;
 	}
 
-	
-	public Set<Projet> getProjets() {
-		return projets;
-	}
-
-	public void setProjets(Set<Projet> projets) {
-		this.projets = projets;
-	}
-	
-
 	public String getEmail() {
 		return email;
 	}
@@ -77,6 +66,15 @@ public class Utilisateur {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
+	public Set<Projet> getProjets() {
+		return projets;
+	}
+
+	public void setProjets(Set<Projet> projets) {
+		this.projets = projets;
+	}
+	
 	
 
 }
