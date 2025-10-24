@@ -1,8 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { ProjectService } from '../../services/project.service';
-import { Project } from '../../models/project.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CommonModule, NgClass, NgIf } from '@angular/common';
@@ -12,6 +9,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { ProjectService } from '../../services/project.service';
+import { ToastService } from '../../services/toast.service';
+import { Project } from '../../models/project.model';
 
 @Component({
   selector: 'app-home',
@@ -23,16 +24,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   errorMessage = '';
   loading = false;
-  projectCreationForm: FormGroup;
   modal = false;
   projects: Project[] = [];
+  projectCreationForm: FormGroup;
   submitted = false;
   userId: string = '';
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private toastService: ToastService
   ) {
     this.projectCreationForm = new FormGroup({
       projectData: new FormGroup({
@@ -110,12 +112,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     console.log('projet submitedxx', name, description, startDate, this.userId);
     this.projectService
       .createProject(name, description, startDate, this.userId)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           console.log(`Projet ${name} créé avec succès`);
+          this.closeProjectCreationModal();
+          this.projectCreationForm.reset();
+          this.submitted = false;
+          this.loadProjects();
+          this.toastService.showToast(`Projet "${name}" créé !`, 'success');
         },
         error: (err) => {
           console.error('Erreur lors de la création du projet: ', err);
+          this.toastService.showToast(
+            'Erreur lors de la création du projet',
+            'error'
+          );
         },
       });
   }
@@ -131,9 +143,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.projects = this.projects.filter((p) => p.id !== id);
+          this.toastService.showToast(
+            'Projet supprimé avec succès !',
+            'success'
+          );
         },
         error: () => {
           this.errorMessage = 'Erreur lors de la suppression du projet';
+          this.toastService.showToast(
+            'Erreur lors de la suppression du projet.',
+            'error'
+          );
         },
       });
   }
