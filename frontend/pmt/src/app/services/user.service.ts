@@ -18,8 +18,8 @@ export class UserService implements OnDestroy {
     this.subscription?.unsubscribe();
   }
 
-  addUser(nom: string, email: string, password: string) {
-    const newLocalUser: LocalUser = { nom, email, password };
+  addUser(name: string, email: string, password: string) {
+    const newLocalUser: LocalUser = { name, email, password };
     return this.apiService.postUser(newLocalUser).pipe(
       tap((newUser) => {
         this.users.push(newUser);

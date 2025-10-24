@@ -1,5 +1,5 @@
 export interface LocalUser {
-  nom: string;
+  name: string;
   email: string;
   password: string;
 }

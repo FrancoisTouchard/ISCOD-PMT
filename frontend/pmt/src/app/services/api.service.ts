@@ -2,19 +2,19 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { LocalUser, User } from '../models/user.model';
-import { Projet } from '../models/projet.model';
+import { LocalProject, Project } from '../models/project.model';
 
 const API_URL = 'http://localhost:8080/';
 
 export interface PostUserResponse extends User {}
-export interface PostProjetResponse extends Projet {}
+export interface PostProjectResponse extends Project {}
 
 export interface GetUserResponse extends User {
-  projets: Projet[];
+  projects: Project[];
 }
 
-export interface GetProjetsResponse extends Projet {}
-export interface DeleteProjetsResponse extends Projet {}
+export interface GetProjectsResponse extends Project {}
+export interface DeleteProjectsResponse extends Project {}
 
 @Injectable({
   providedIn: 'root',
@@ -42,19 +42,19 @@ export class ApiService {
 
   getProjectsByContributeur(userId: string) {
     return this.httpClient
-      .get<GetProjetsResponse[]>(`${API_URL}projets/mes-projets/${userId}`)
+      .get<GetProjectsResponse[]>(`${API_URL}projects/my-projects/${userId}`)
       .pipe(catchError((error) => this.handleError(error)));
   }
 
-  postProjet(projet: Projet) {
+  postProject(project: LocalProject, creatorId: string) {
     return this.httpClient
-      .post<Projet>(`${API_URL}projets`, projet)
+      .post<Project>(`${API_URL}projects?creatorId=${creatorId}`, project)
       .pipe(catchError((error) => this.handleError(error)));
   }
 
   deleteProject(id: string) {
     return this.httpClient
-      .delete<DeleteProjetsResponse[]>(`${API_URL}projets/${id}`)
+      .delete<DeleteProjectsResponse[]>(`${API_URL}projects/${id}`)
       .pipe(catchError((error) => this.handleError(error)));
   }
 
