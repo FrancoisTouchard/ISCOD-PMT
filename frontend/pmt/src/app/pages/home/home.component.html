@@ -1,16 +1,14 @@
 <nav class="navbar header bg-primary">
   <div class="container-fluid">
     <div>
-      <button class="btn btn-danger" (click)="logOutAndRedirect()">
-        Déconnexion
-      </button>
+      <button class="btn btn-danger" (click)="logOut()">Déconnexion</button>
       <button class="btn btn-light" (click)="openProjectCreationModal()">
         Créer un projet
       </button>
     </div>
   </div>
 </nav>
-
+<!-- Modal de création de projet -->
 <div *ngIf="modal" class="custom-backdrop">
   <div class="custom-modal">
     <div class="modal-header">
@@ -21,9 +19,7 @@
         (click)="closeProjectCreationModal()"
       ></button>
     </div>
-    <!-- <div class="modal-body">
-      <p>Contenu de la modal…</p>
-    </div> -->
+
     <form
       [formGroup]="projectCreationForm"
       (ngSubmit)="onProjectCreationSubmit()"
@@ -115,11 +111,16 @@
           <td>{{ project.startDate | date : "dd/MM/yyyy" }}</td>
           <td>
             <span>
-              {{ getRoleLabel(project.contributors[0]?.role || "") }}
+              {{ getRoleLabel(project.contributors[0].role || "") }}
             </span>
           </td>
           <td>
-            <button class="btn btn-sm btn-primary">Voir</button>
+            <button
+              class="btn btn-sm btn-primary"
+              [routerLink]="['/project', project.id]"
+            >
+              Voir
+            </button>
             <button
               class="btn btn-sm btn-danger ms-3"
               (click)="deleteProject(project.id)"
@@ -132,7 +133,7 @@
     </table>
   </div>
 
-  <!-- Aucun projet -->
+  <!-- Empty screen projet -->
   <div
     *ngIf="!loading && projects.length === 0"
     class="alert alert-info d-flex flex-column align-items-center"
@@ -140,6 +141,8 @@
     <div>
       <strong>Aucun projet</strong> - Vous n'avez aucun projet pour le moment.
     </div>
-    <button class="btn btn-primary mt-2">Créer un projet</button>
+    <button class="btn btn-primary mt-2" (click)="openProjectCreationModal()">
+      Créer un projet
+    </button>
   </div>
 </div>

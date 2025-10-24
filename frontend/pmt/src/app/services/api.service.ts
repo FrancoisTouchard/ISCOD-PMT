@@ -46,6 +46,12 @@ export class ApiService {
       .pipe(catchError((error) => this.handleError(error)));
   }
 
+  getProjectById(projectId: string) {
+    return this.httpClient
+      .get<Project>(`${API_URL}projects/${projectId}`)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
   postProject(project: LocalProject, creatorId: string) {
     return this.httpClient
       .post<Project>(`${API_URL}projects?creatorId=${creatorId}`, project)

@@ -6,4 +6,6 @@ export interface ContributorId {
 export interface Contributor {
   id: ContributorId;
   role: 'ADMINISTRATEUR' | 'MEMBRE' | 'OBSERVATEUR';
+  userName: string;
+  userEmail: string;
 }

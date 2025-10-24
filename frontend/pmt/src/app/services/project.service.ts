@@ -24,6 +24,14 @@ export class ProjectService implements OnDestroy {
     );
   }
 
+  getProjectById(projectId: string) {
+    return this.apiService.getProjectById(projectId).pipe(
+      tap((project) => {
+        this.projects = [project];
+      })
+    );
+  }
+
   createProject(
     name: string,
     description: string,

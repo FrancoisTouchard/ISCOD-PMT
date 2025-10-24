@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CommonModule, NgClass, NgIf } from '@angular/common';
@@ -16,7 +16,7 @@ import { Project } from '../../models/project.model';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, ReactiveFormsModule, NgClass, NgIf],
+  imports: [CommonModule, ReactiveFormsModule, NgClass, NgIf, RouterLink],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
@@ -31,7 +31,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   userId: string = '';
 
   constructor(
-    private router: Router,
     private authService: AuthService,
     private projectService: ProjectService,
     private toastService: ToastService
@@ -81,6 +80,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.projects = this.projectService.projects;
+          console.log('projets in loadprojjj', this.projects);
           this.loading = false;
         },
         error: () => {
@@ -90,9 +90,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  logOutAndRedirect(): void {
+  logOut(): void {
     this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   openProjectCreationModal() {
@@ -115,7 +114,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          console.log(`Projet ${name} créé avec succès`);
+          console.log('dataxxx', data);
           this.closeProjectCreationModal();
           this.projectCreationForm.reset();
           this.submitted = false;
