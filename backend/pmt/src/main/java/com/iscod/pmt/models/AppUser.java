@@ -20,7 +20,7 @@ public class AppUser {
 	
 	@Id
 	@GeneratedValue
-	private UUID id;
+	private UUID id; 
 	
 	@NotNull(message="Le nom est obligatoire")
 	private String name;
@@ -47,8 +47,8 @@ public class AppUser {
 		return name;
 	}
 
-	public void setName(String nom) {
-		this.name = nom;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getEmail() {

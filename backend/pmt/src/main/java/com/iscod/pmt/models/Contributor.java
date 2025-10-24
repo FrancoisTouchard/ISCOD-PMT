@@ -1,6 +1,8 @@
 package com.iscod.pmt.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,6 +33,16 @@ public class Contributor {
     
     @Enumerated(EnumType.STRING)
     private Role role;
+    
+    @JsonProperty("userName")
+    public String getUserName() {
+        return user != null ? user.getName() : null;
+    }
+
+    @JsonProperty("userEmail")
+    public String getUserEmail() {
+        return user != null ? user.getEmail() : null;
+    }
     
     public Contributor() {}
     
