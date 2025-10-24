@@ -12,27 +12,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iscod.pmt.models.Contributeur;
-import com.iscod.pmt.services.ContributeurService;
+import com.iscod.pmt.models.Contributor;
+import com.iscod.pmt.services.ContributorService;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/contributeurs")
-public class ContributeurController {
+@RequestMapping("/contributors")
+public class ContributorController {
 	
 	@Autowired
-	private ContributeurService contributeurService;
+	private ContributorService contributorService;
 	
-	   @GetMapping("/projet/{projetId}")
+	   @GetMapping("/project/{projectId}")
 	    @ResponseStatus(code = HttpStatus.OK)
-	    public List<Contributeur> getContributeursByProjet(@PathVariable UUID projetId) {
-	        return contributeurService.findByIdIdProjet(projetId);
+	    public List<Contributor> getContributeursByProjet(@PathVariable UUID projectId) {
+	        return contributorService.findByIdIdProject(projectId);
 	    }
 
-	    @GetMapping("/utilisateur/{utilisateurId}")
+	    @GetMapping("/user/{userId}")
 	    @ResponseStatus(code = HttpStatus.OK)
-	    public List<Contributeur> getContributeursByUtilisateur(@PathVariable UUID utilisateurId) {
-	        return contributeurService.findByIdIdUtilisateur(utilisateurId);
+	    public List<Contributor> getContributeursByUtilisateur(@PathVariable UUID userId) {
+	        return contributorService.findByIdIdUser(userId);
 	    }
 	
 

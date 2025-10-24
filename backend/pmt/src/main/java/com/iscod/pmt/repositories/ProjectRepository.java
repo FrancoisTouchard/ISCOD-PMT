@@ -4,8 +4,8 @@ import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.iscod.pmt.models.Projet;
+import com.iscod.pmt.models.Project;
 
-public interface ProjetRepository extends CrudRepository<Projet, UUID> {
+public interface ProjectRepository extends CrudRepository<Project, UUID> {
 
 }

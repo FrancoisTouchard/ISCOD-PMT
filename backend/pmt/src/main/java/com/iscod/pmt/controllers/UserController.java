@@ -15,62 +15,57 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iscod.pmt.models.Projet;
-import com.iscod.pmt.services.ProjetService;
+import com.iscod.pmt.models.AppUser;
+import com.iscod.pmt.services.UserService;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/projets")
-public class ProjetController {
+@RequestMapping("/users")
+public class UserController {
 	
 	@Autowired
-	private ProjetService projetService;
+	private UserService userService;
 	
 	@GetMapping
-	public List<Projet> findAll(){
-		return projetService.findAll();
+	public List<AppUser> findAll(){
+		return userService.findAll();
 	}
 	
 	@GetMapping("/{id}")
-	public Projet findById(@PathVariable UUID id) {
+	public AppUser findById(@PathVariable UUID id) {
 		
-		return projetService.findById(id);
-	}
-	
-	@GetMapping("/mes-projets/{userId}")
-	public List<Projet> getProjetsByUtilisateurId(@PathVariable UUID userId) {
-	    return projetService.getProjetsByUtilisateurId(userId);
+		return userService.findById(id);
 	}
 	
 	@PostMapping
 	@ResponseStatus(code = HttpStatus.CREATED)
-	public Projet create(@RequestBody Projet projet, @RequestParam UUID createurId) {
-	    return projetService.create(projet, createurId);
+	public UUID create(@RequestBody AppUser user) {
+		
+		return userService.create(user);
 	}
 	
 	@PutMapping("/{id}")
 	@ResponseStatus(code = HttpStatus.OK)
-	public void update(@PathVariable UUID id, @RequestBody Projet projet) {
+	public void update(@PathVariable UUID id, @RequestBody AppUser user) {
 		
-		projetService.update(id, projet);
+		userService.update(id, user);
 	}
 	
 	@PatchMapping("/{id}")
 	@ResponseStatus(code = HttpStatus.OK)
 	public void partialUpdate(@PathVariable UUID id, @RequestBody Map<String, Object> updates) {
 
-		projetService.partialUpdate(id, updates);
+		userService.partialUpdate(id, updates);
 	}
 	
 	@DeleteMapping("/{id}")
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable UUID id) {
 
-		projetService.deleteById(id);
+		userService.deleteById(id);
 	}
 	
 

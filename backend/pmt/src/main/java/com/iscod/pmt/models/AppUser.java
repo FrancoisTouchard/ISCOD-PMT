@@ -14,25 +14,25 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
-@Table(name="utilisateur")
+@Table(name="app_user")
 @Entity
-public class Utilisateur {
+public class AppUser {
 	
 	@Id
 	@GeneratedValue
 	private UUID id;
 	
 	@NotNull(message="Le nom est obligatoire")
-	private String nom;
+	private String name;
 	
 	private String email;
 	
 	private String password;
 	
 	
-	@OneToMany(mappedBy = "createur", cascade = CascadeType.ALL)
-	@JsonManagedReference("createur")
-	private Set<Projet> projets = new HashSet<Projet>();
+	@OneToMany(mappedBy = "creator", cascade = CascadeType.ALL)
+	@JsonManagedReference("creator")
+	private Set<Project> projects = new HashSet<Project>();
 
 	
 	public UUID getId() {
@@ -43,12 +43,12 @@ public class Utilisateur {
 		this.id = id;
 	}
 
-	public String getNom() {
-		return nom;
+	public String getName() {
+		return name;
 	}
 
-	public void setNom(String nom) {
-		this.nom = nom;
+	public void setName(String nom) {
+		this.name = nom;
 	}
 
 	public String getEmail() {
@@ -67,12 +67,12 @@ public class Utilisateur {
 		this.password = password;
 	}
 	
-	public Set<Projet> getProjets() {
-		return projets;
+	public Set<Project> getProjets() {
+		return projects;
 	}
 
-	public void setProjets(Set<Projet> projets) {
-		this.projets = projets;
+	public void setProjets(Set<Project> projects) {
+		this.projects = projects;
 	}
 	
 	

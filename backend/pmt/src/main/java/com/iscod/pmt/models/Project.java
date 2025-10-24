@@ -18,29 +18,29 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
-@Table(name="projet")
+@Table(name="project")
 @Entity
-public class Projet {
+public class Project {
 	
 	@Id
 	@GeneratedValue
 	private UUID id;
 	
 	@NotNull(message="Un projet doit avoir un nom.")
-	private String nom;
+	private String name;
 	
 	private String description;
 	
-	private LocalDate dateDebut;
+	private LocalDate startDate;
 	
 	@ManyToOne
-	@JoinColumn(name = "id_createur")
-	@JsonBackReference("createur")
-	private Utilisateur createur;
+	@JoinColumn(name = "id_creator")
+	@JsonBackReference("creator")
+	private AppUser creator;
 	
-	@OneToMany(mappedBy = "projet", cascade = CascadeType.ALL)
-	@JsonManagedReference("projet")
-	private Set<Contributeur> contributeurs = new HashSet<>();
+	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+	@JsonManagedReference("project")
+	private Set<Contributor> contributors = new HashSet<>();
 	
 	public UUID getId() {
 		return id;
@@ -50,12 +50,12 @@ public class Projet {
 		this.id = id;
 	}
 
-	public String getNom() {
-		return nom;
+	public String getName() {
+		return name;
 	}
 
-	public void setNom(String nom) {
-		this.nom = nom;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getDescription() {
@@ -66,28 +66,28 @@ public class Projet {
 		this.description = description;
 	}
 
-	public LocalDate getDateDebut() {
-		return dateDebut;
+	public LocalDate getStartDate() {
+		return startDate;
 	}
 
-	public void setDateDebut(LocalDate dateDebut) {
-		this.dateDebut = dateDebut;
+	public void setStartDate(LocalDate startDate) {
+		this.startDate = startDate;
 	}
 
-	public Utilisateur getCreateur() {
-		return createur;
+	public AppUser getCreator() {
+		return creator;
 	}
 
-	public void setCreateur(Utilisateur createur) {
-		this.createur = createur;
+	public void setCreator(AppUser creator) {
+		this.creator = creator;
 	}
 
-	public Set<Contributeur> getContributeurs() {
-		return contributeurs;
+	public Set<Contributor> getContributors() {
+		return contributors;
 	}
 
-	public void setContributeurs(Set<Contributeur> contributeurs) {
-		this.contributeurs = contributeurs;
+	public void setContributors(Set<Contributor> contributors) {
+		this.contributors = contributors;
 	}
 
 }
