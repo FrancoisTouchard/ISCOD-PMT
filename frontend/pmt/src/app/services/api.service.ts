@@ -77,6 +77,23 @@ export class ApiService {
       .pipe(catchError((error) => this.handleError(error)));
   }
 
+  postContributor(projectId: string, email: string, role: Role) {
+    return this.httpClient
+      .post<Contributor>(`${API_URL}contributors/project/${projectId}`, {
+        email,
+        role,
+      })
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  deleteContributor(projectId: string, userId: string): Observable<void> {
+    return this.httpClient
+      .delete<void>(
+        `${API_URL}contributors/project/${projectId}/user/${userId}`
+      )
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
   private handleError(error: HttpErrorResponse) {
     console.error('Erreur API:', error);
     return throwError(() => error);

@@ -10,7 +10,9 @@ export class ToastService {
     if (!toastContainer) return;
 
     const toastEl = document.createElement('div');
-    toastEl.className = `toast align-items-center border-0 text-bg-${type}`;
+    toastEl.className = `toast align-items-center border-0 text-bg-${
+      type === 'error' ? 'danger' : 'success'
+    }`;
     toastEl.setAttribute('role', 'alert');
     toastEl.setAttribute('aria-live', 'assertive');
     toastEl.setAttribute('aria-atomic', 'true');

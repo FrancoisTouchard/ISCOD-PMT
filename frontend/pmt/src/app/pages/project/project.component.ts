@@ -10,29 +10,56 @@ import { Role } from '../../models/role.enum';
 import { getRoleString } from '../../utils/labels';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ContributorService } from '../../services/contributor.service';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-project',
-  imports: [CommonModule, NgbDropdownModule, NgClass, NgFor, NgIf],
+  imports: [
+    CommonModule,
+    NgbDropdownModule,
+    ReactiveFormsModule,
+    NgClass,
+    NgFor,
+    NgIf,
+  ],
   templateUrl: './project.component.html',
   styleUrl: './project.component.scss',
 })
 export class ProjectComponent implements OnInit, OnDestroy {
+  activeTab: string = 'tasks';
+  addContributorForm: FormGroup;
   private destroy$ = new Subject<void>();
   errorMessage = '';
+  getRoleLabel = getRoleString;
   loading = false;
+  isAddContributorBlockVisible = false;
   project: Project | null = null;
   projectId = '';
+  Role = Role;
   roles = Object.values(Role);
-  getRoleLabel = getRoleString;
+  submitted = false;
 
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
     private contributorService: ContributorService,
     private projectService: ProjectService,
+    private toastService: ToastService,
     private router: Router
-  ) {}
+  ) {
+    this.addContributorForm = new FormGroup({
+      contributorData: new FormGroup({
+        email: new FormControl(null, [Validators.required, Validators.email]),
+        role: new FormControl(Role.ADMINISTRATEUR, [Validators.required]),
+      }),
+    });
+  }
 
   ngOnInit(): void {
     this.projectId = this.route.snapshot.paramMap.get('id') || '';
@@ -48,8 +75,68 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  get email() {
+    return this.addContributorForm.get('contributorData.email') as FormControl;
+  }
+
+  get role() {
+    return this.addContributorForm.get('contributorData.role') as FormControl;
+  }
+
   logOut(): void {
     this.authService.logout();
+  }
+
+  showAddContributorBlock() {
+    this.isAddContributorBlockVisible = true;
+  }
+
+  hideAddContributorBlock() {
+    this.isAddContributorBlockVisible = false;
+    this.addContributorForm.reset({
+      contributorData: {
+        email: null,
+        role: Role.ADMINISTRATEUR,
+      },
+    });
+    this.submitted = false;
+  }
+
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
+  }
+
+  onAddContributorSubmit() {
+    this.submitted = true;
+    if (this.addContributorForm.invalid) return;
+
+    const email = this.email.value;
+    const role = this.role.value;
+    console.log('Ajout contributeur:', email, role, this.projectId);
+
+    this.contributorService
+      .addContributor(this.projectId, email, role)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.hideAddContributorBlock();
+          this.loadProject();
+          this.activeTab = 'members';
+          this.toastService.showToast(
+            `Contributeur "${email}" ajouté avec le rôle ${this.getRoleLabel(
+              role
+            )} !`,
+            'success'
+          );
+        },
+        error: (err) => {
+          console.error("Erreur lors de l'ajout du contributeur: ", err);
+          this.toastService.showToast(
+            "Erreur lors de l'ajout du contributeur",
+            'error'
+          );
+        },
+      });
   }
 
   goToHomePage() {
@@ -70,6 +157,36 @@ export class ProjectComponent implements OnInit, OnDestroy {
         error: () => {
           this.errorMessage = 'Erreur lors du chargement du projet';
           this.loading = false;
+        },
+      });
+  }
+
+  deleteContributor(contributor: Contributor): void {
+    if (
+      !confirm(
+        `Voulez-vous vraiment retirer ${contributor.userName} du projet ?`
+      )
+    ) {
+      return;
+    }
+
+    this.contributorService
+      .deleteContributor(this.projectId, contributor.id.idUser)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadProject();
+          this.toastService.showToast(
+            `${contributor.userName} a été retiré du projet`,
+            'success'
+          );
+        },
+        error: (err) => {
+          console.error('Erreur lors de la suppression du contributeur:', err);
+          this.toastService.showToast(
+            'Erreur lors de la suppression du contributeur',
+            'error'
+          );
         },
       });
   }

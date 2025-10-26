@@ -16,6 +16,18 @@ export class ContributorService implements OnDestroy {
     this.subscription?.unsubscribe();
   }
 
+  addContributor(
+    projectId: string,
+    email: string,
+    role: Role
+  ): Observable<Contributor> {
+    return this.apiService.postContributor(projectId, email, role);
+  }
+
+  deleteContributor(projectId: string, userId: string): Observable<void> {
+    return this.apiService.deleteContributor(projectId, userId);
+  }
+
   updateContributorRole(
     projectId: string,
     userId: string,
