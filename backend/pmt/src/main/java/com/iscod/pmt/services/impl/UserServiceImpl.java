@@ -36,6 +36,16 @@ public class UserServiceImpl implements UserService {
 		
 		return userRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
 	}
+	
+	@Override
+	public AppUser findByEmail(String email) {
+	if(userRepository.findByEmail(email).isPresent()) {
+			
+			return userRepository.findByEmail(email).get();
+		}
+		
+		return userRepository.findByEmail(email).orElseThrow(ResourceNotFoundException::new);
+	}
 
 	@Override
 	public UUID create(AppUser user) {
@@ -77,7 +87,5 @@ public class UserServiceImpl implements UserService {
 	public void deleteById(UUID id) {
 		userRepository.deleteById(id);
 	}
-
-
 
 }

@@ -7,10 +7,15 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iscod.pmt.exceptions.ResourceNotFoundException;
+import com.iscod.pmt.models.AppUser;
 import com.iscod.pmt.models.Contributor;
 import com.iscod.pmt.models.ContributorId;
+import com.iscod.pmt.models.Project;
 import com.iscod.pmt.models.Role;
 import com.iscod.pmt.repositories.ContributorRepository;
+import com.iscod.pmt.repositories.ProjectRepository;
+import com.iscod.pmt.repositories.UserRepository;
 import com.iscod.pmt.services.ContributorService;
 
 @Service
@@ -18,6 +23,12 @@ public class ContributorServiceImpl implements ContributorService {
 
     @Autowired
     private ContributorRepository contributorRepository;
+    
+    @Autowired
+    private ProjectRepository projectRepositoy;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public List<Contributor> findByIdIdProject(UUID idProject) {
@@ -33,9 +44,33 @@ public class ContributorServiceImpl implements ContributorService {
 	public Contributor create(Contributor contributeur) {
 		return contributorRepository.save(contributeur);
 	}
+	
+    @Override
+    public Contributor addContributorByEmail(UUID projectId, String email, Role role) {
+        Project project = projectRepositoy.findById(projectId)
+        		.orElseThrow(ResourceNotFoundException::new);
+
+        
+        		AppUser user = userRepository.findByEmail(email)
+        				.orElseThrow(ResourceNotFoundException::new);
+        
+        ContributorId contributorId = new ContributorId(user.getId(), projectId);
+        if (contributorRepository.existsById(contributorId)) {
+            throw new RuntimeException("Ce contributeur fait déjà partie du projet");
+        }
+        
+        Contributor newContributor = new Contributor();
+        newContributor.setId(contributorId);
+        newContributor.setRole(role);
+        newContributor.setUser(user);
+        newContributor.setProject(project);
+        
+        return contributorRepository.save(newContributor);
+    }
 
 	@Override
 	public Contributor partialUpdate(ContributorId id, Map<String, Object> updates) {
+		
 		Contributor contributorToUpdate = contributorRepository.findById(id).get();
 		
 		for(String key : updates.keySet()) {
@@ -50,4 +85,14 @@ public class ContributorServiceImpl implements ContributorService {
 		
 		return contributorRepository.save(contributorToUpdate);
 	}
+
+	@Override
+	public void deleteById(ContributorId id) {
+		if(!contributorRepository.existsById(id)) {
+			throw new ResourceNotFoundException();
+		}
+		contributorRepository.deleteById(id);
+	}
+
+
 }

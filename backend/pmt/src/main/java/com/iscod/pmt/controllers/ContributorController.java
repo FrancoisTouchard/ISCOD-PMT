@@ -7,9 +7,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -40,6 +42,20 @@ public class ContributorController {
 	        return contributorService.findByIdIdUser(userId);
 	    }
 	    
+	    @PostMapping("/project/{projectId}")
+	    @ResponseStatus(code = HttpStatus.CREATED)
+	    public Contributor addContributor(
+	            @PathVariable UUID projectId,
+	            @RequestBody Map<String, String> contributorData) {
+	        
+	        String email = contributorData.get("email");
+	        String roleStr = contributorData.get("role");
+	        Role role = Role.valueOf(roleStr);
+	        
+	        return contributorService.addContributorByEmail(projectId, email, role);
+	    }
+	   
+	    
 	    @PatchMapping("/project/{projectId}/user/{userId}")
 	    @ResponseStatus(code = HttpStatus.OK)
 	    public Contributor partialUpdate(
@@ -56,6 +72,14 @@ public class ContributorController {
 
 	        return contributorService.partialUpdate(contributorId, updates);
 	    }
+	    
+	    @DeleteMapping("/project/{projectId}/user/{userId}")
+		@ResponseStatus(code = HttpStatus.NO_CONTENT)
+		public void delete(@PathVariable UUID projectId, @PathVariable UUID userId) {
+
+			 ContributorId contributorId = new ContributorId(userId, projectId);
+			 contributorService.deleteById(contributorId);
+		}
 
 
 	

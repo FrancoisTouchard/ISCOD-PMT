@@ -40,6 +40,12 @@ public class UserController {
 		return userService.findById(id);
 	}
 	
+	@GetMapping("/{email}")
+	public AppUser findByEmail(@PathVariable String email) {
+		
+		return userService.findByEmail(email);
+	}
+	
 	@PostMapping
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public UUID create(@RequestBody AppUser user) {

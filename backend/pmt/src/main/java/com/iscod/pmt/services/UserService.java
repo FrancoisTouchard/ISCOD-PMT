@@ -20,4 +20,6 @@ public interface UserService {
 
 	void deleteById(UUID id);
 
+	AppUser findByEmail(String email);
+
 }
