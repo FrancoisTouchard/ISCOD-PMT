@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/project.service';
 import { ToastService } from '../../services/toast.service';
 import { Project } from '../../models/project.model';
+import { getRoleString } from '../../utils/labels';
 
 @Component({
   selector: 'app-home',
@@ -23,6 +24,7 @@ import { Project } from '../../models/project.model';
 export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   errorMessage = '';
+  getRoleLabel = getRoleString;
   loading = false;
   modal = false;
   projects: Project[] = [];
@@ -155,14 +157,5 @@ export class HomeComponent implements OnInit, OnDestroy {
           );
         },
       });
-  }
-
-  getRoleLabel(role: string): string {
-    const roleMap: { [key: string]: string } = {
-      ADMINISTRATEUR: 'Administrateur',
-      MEMBRE: 'Membre',
-      OBSERVATEUR: 'Observateur',
-    };
-    return roleMap[role] || role;
   }
 }

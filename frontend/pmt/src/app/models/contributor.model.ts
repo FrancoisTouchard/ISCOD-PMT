@@ -1,3 +1,5 @@
+import { Role } from './role.enum';
+
 export interface ContributorId {
   idUser: string;
   idProject: string;
@@ -5,7 +7,7 @@ export interface ContributorId {
 
 export interface Contributor {
   id: ContributorId;
-  role: 'ADMINISTRATEUR' | 'MEMBRE' | 'OBSERVATEUR';
+  role: Role;
   userName: string;
   userEmail: string;
 }

@@ -105,10 +105,35 @@
               <td>{{ contributor?.userName }}</td>
               <td>{{ contributor?.userEmail }}</td>
               <td>
-                <span class="badge bg-danger">{{ contributor?.role }}</span>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-danger">{{
+                    getRoleLabel(contributor.role)
+                  }}</span>
+                  <!-- Dropdown modification rôle -->
+                  <div ngbDropdown class="d-inline-block position-static">
+                    <button
+                      class="btn btn-sm btn-secondary px-2 py-0"
+                      ngbDropdownToggle
+                      id="contributorRole"
+                      style="font-size: 0.75rem"
+                    >
+                      Modifier
+                    </button>
+
+                    <div ngbDropdownMenu>
+                      <button
+                        ngbDropdownItem
+                        *ngFor="let role of roles"
+                        [hidden]="role === contributor?.role"
+                        (click)="updateContributorRole(contributor, role)"
+                      >
+                        {{ getRoleLabel(role) }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </td>
               <td>
-                <button class="btn btn-sm btn-warning">Modifier rôle</button>
                 <button class="btn btn-sm btn-danger">Retirer</button>
               </td>
             </tr>

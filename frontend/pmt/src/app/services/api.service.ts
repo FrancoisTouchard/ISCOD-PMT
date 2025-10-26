@@ -1,8 +1,10 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { LocalUser, User } from '../models/user.model';
 import { LocalProject, Project } from '../models/project.model';
+import { Role } from '../models/role.enum';
+import { Contributor } from '../models/contributor.model';
 
 const API_URL = 'http://localhost:8080/';
 
@@ -61,6 +63,17 @@ export class ApiService {
   deleteProject(id: string) {
     return this.httpClient
       .delete<DeleteProjectsResponse[]>(`${API_URL}projects/${id}`)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  patchContributorRole(projectId: string, userId: string, newRole: Role) {
+    return this.httpClient
+      .patch<Contributor>(
+        `${API_URL}contributors/project/${projectId}/user/${userId}`,
+        {
+          role: newRole,
+        }
+      )
       .pipe(catchError((error) => this.handleError(error)));
   }
 
