@@ -1,3 +1,5 @@
+import { Project } from './project.model';
+
 export interface LocalUser {
   name: string;
   email: string;
@@ -6,4 +8,5 @@ export interface LocalUser {
 
 export interface User extends LocalUser {
   id: string;
+  projects?: Project[];
 }

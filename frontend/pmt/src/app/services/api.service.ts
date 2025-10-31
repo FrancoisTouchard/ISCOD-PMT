@@ -5,18 +5,9 @@ import { LocalUser, User } from '../models/user.model';
 import { LocalProject, Project } from '../models/project.model';
 import { Role } from '../models/role.enum';
 import { Contributor } from '../models/contributor.model';
+import { LocalTask, Task } from '../models/task.model';
 
 const API_URL = 'http://localhost:8080/';
-
-export interface PostUserResponse extends User {}
-export interface PostProjectResponse extends Project {}
-
-export interface GetUserResponse extends User {
-  projects: Project[];
-}
-
-export interface GetProjectsResponse extends Project {}
-export interface DeleteProjectsResponse extends Project {}
 
 @Injectable({
   providedIn: 'root',
@@ -24,15 +15,22 @@ export interface DeleteProjectsResponse extends Project {}
 export class ApiService {
   constructor(private httpClient: HttpClient) {}
 
+  private handleError(error: HttpErrorResponse) {
+    console.error('Erreur API:', error);
+    return throwError(() => error);
+  }
+
+  // méthodes user
+
   postUser(user: LocalUser) {
     return this.httpClient
-      .post<PostUserResponse>(`${API_URL}users`, user)
+      .post<User>(`${API_URL}users`, user)
       .pipe(catchError((error) => this.handleError(error)));
   }
 
   getUsers() {
     return this.httpClient
-      .get<GetUserResponse[]>(`${API_URL}users`)
+      .get<User[]>(`${API_URL}users`)
       .pipe(catchError((error) => this.handleError(error)));
   }
 
@@ -42,9 +40,11 @@ export class ApiService {
       .pipe(catchError((error) => this.handleError(error)));
   }
 
+  // méthodes projet
+
   getProjectsByContributeur(userId: string) {
     return this.httpClient
-      .get<GetProjectsResponse[]>(`${API_URL}projects/my-projects/${userId}`)
+      .get<Project[]>(`${API_URL}projects/my-projects/${userId}`)
       .pipe(catchError((error) => this.handleError(error)));
   }
 
@@ -62,9 +62,11 @@ export class ApiService {
 
   deleteProject(id: string) {
     return this.httpClient
-      .delete<DeleteProjectsResponse[]>(`${API_URL}projects/${id}`)
+      .delete<Project[]>(`${API_URL}projects/${id}`)
       .pipe(catchError((error) => this.handleError(error)));
   }
+
+  // méthodes contributeur
 
   patchContributorRole(projectId: string, userId: string, newRole: Role) {
     return this.httpClient
@@ -94,8 +96,32 @@ export class ApiService {
       .pipe(catchError((error) => this.handleError(error)));
   }
 
-  private handleError(error: HttpErrorResponse) {
-    console.error('Erreur API:', error);
-    return throwError(() => error);
+  // méthodes tâches
+
+  getTasksByProjectId(projectId: string) {
+    return this.httpClient
+      .get<Task[]>(`${API_URL}tasks/project/${projectId}`)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  postTask(projectId: string, task: LocalTask): Observable<Task> {
+    const payload = {
+      name: task.name,
+      description: task.description,
+      dueDate: task.dueDate,
+      endDate: task.endDate,
+      priority: task.priority,
+      assigneeIds: task.assigneeIds,
+    };
+
+    return this.httpClient
+      .post<Task>(`${API_URL}tasks/project/${projectId}`, payload)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  deleteTaskById(taskId: string) {
+    return this.httpClient
+      .delete<Task[]>(`${API_URL}tasks/${taskId}`)
+      .pipe(catchError((error) => this.handleError(error)));
   }
 }

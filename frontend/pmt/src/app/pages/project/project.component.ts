@@ -1,7 +1,7 @@
 import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 import { AuthService } from '../../services/auth.service';
@@ -17,6 +17,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
+import { Priority } from '../../models/priority.enum';
+import { LocalTask, Task } from '../../models/task.model';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-project',
@@ -34,29 +37,44 @@ import { ToastService } from '../../services/toast.service';
 export class ProjectComponent implements OnInit, OnDestroy {
   activeTab: string = 'tasks';
   addContributorForm: FormGroup;
+  addTaskForm: FormGroup;
   private destroy$ = new Subject<void>();
   errorMessage = '';
   getRoleLabel = getRoleString;
   loading = false;
   isAddContributorBlockVisible = false;
+  isContributorSubmitted = false;
+  isAddTaskBlockVisible = false;
+  isTaskSubmitted = false;
   project: Project | null = null;
   projectId = '';
   Role = Role;
   roles = Object.values(Role);
-  submitted = false;
+  Priority = Priority;
 
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
     private contributorService: ContributorService,
     private projectService: ProjectService,
+    private taskService: TaskService,
     private toastService: ToastService,
     private router: Router
   ) {
     this.addContributorForm = new FormGroup({
       contributorData: new FormGroup({
         email: new FormControl(null, [Validators.required, Validators.email]),
-        role: new FormControl(Role.ADMINISTRATEUR, [Validators.required]),
+        role: new FormControl(Role.OBSERVATEUR, [Validators.required]),
+      }),
+    });
+    this.addTaskForm = new FormGroup({
+      taskData: new FormGroup({
+        name: new FormControl(null, [Validators.required]),
+        description: new FormControl(null),
+        dueDate: new FormControl(null, [Validators.required]),
+        endDate: new FormControl(null),
+        priority: new FormControl(Priority.MEDIUM, [Validators.required]),
+        assigneeIds: new FormControl([]),
       }),
     });
   }
@@ -83,11 +101,35 @@ export class ProjectComponent implements OnInit, OnDestroy {
     return this.addContributorForm.get('contributorData.role') as FormControl;
   }
 
+  get taskName() {
+    return this.addTaskForm.get('taskData.name') as FormControl;
+  }
+
+  get taskDueDate() {
+    return this.addTaskForm.get('taskData.dueDate') as FormControl;
+  }
+
+  get taskEndDate() {
+    return this.addTaskForm.get('taskData.endDate') as FormControl;
+  }
+
+  get taskPriority() {
+    return this.addTaskForm.get('taskData.priority') as FormControl;
+  }
+
+  get taskAssigneeIds() {
+    return this.addTaskForm.get('taskData.assigneeIds') as FormControl;
+  }
+
+  get tasks() {
+    return this.taskService.tasks;
+  }
+
   goToHomePage() {
     this.router.navigate(['/home']);
   }
 
-  logOut(): void {
+  logOut() {
     this.authService.logout();
   }
 
@@ -103,7 +145,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         role: Role.ADMINISTRATEUR,
       },
     });
-    this.submitted = false;
+    this.isContributorSubmitted = false;
   }
 
   setActiveTab(tab: string) {
@@ -112,16 +154,25 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   loadProject(): void {
     this.loading = true;
-    this.projectService
-      .getProjectById(this.projectId)
+
+    forkJoin({
+      project: this.projectService.getProjectById(this.projectId),
+      tasks: this.taskService.getTasksByProjectId(this.projectId),
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          this.project = data;
+        next: ({ project, tasks }) => {
+          this.project = project;
+          this.taskService.tasks = tasks;
           this.loading = false;
+          console.log('Projet et tâches chargés', { project, tasks });
         },
-        error: () => {
-          this.errorMessage = 'Erreur lors du chargement du projet';
+        error: (err) => {
+          console.error(
+            'Erreur lors du chargement des données du projet :',
+            err
+          );
+          this.errorMessage = 'Erreur lors du chargement des données';
           this.loading = false;
         },
       });
@@ -130,7 +181,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   // Méthodes de gestion des contributeurs
 
   onAddContributorSubmit() {
-    this.submitted = true;
+    this.isContributorSubmitted = true;
     if (this.addContributorForm.invalid) return;
 
     const email = this.email.value;
@@ -216,6 +267,88 @@ export class ProjectComponent implements OnInit, OnDestroy {
           console.error('Erreur:', err);
           this.toastService.showToast(
             `Le rôle n'a pas pu être mis à jour`,
+            'error'
+          );
+        },
+      });
+  }
+
+  // méthodes de gestion des tâches
+
+  showAddTaskBlock() {
+    this.isAddTaskBlockVisible = true;
+  }
+
+  hideAddTaskBlock() {
+    this.isAddTaskBlockVisible = false;
+    this.isTaskSubmitted = false;
+    this.addTaskForm.reset({
+      taskData: {
+        name: null,
+        description: null,
+        dueDate: null,
+        endDate: null,
+        priority: Priority.MEDIUM,
+        assigneeIds: null,
+      },
+    });
+  }
+
+  onAssigneeToggle(userId: string, checked: boolean) {
+    const assignees = this.taskAssigneeIds.value as string[];
+    if (checked) {
+      this.taskAssigneeIds.setValue([...assignees, userId]);
+    } else {
+      this.taskAssigneeIds.setValue(assignees.filter((id) => id !== userId));
+    }
+  }
+
+  getAssigneesNames(task: Task): string {
+    if (!this.project || !task.assignments) return '';
+    const names = task.assignments?.map((a) => {
+      const contributor = this.project?.contributors.find(
+        (c) => c.id.idUser === a.id.userId
+      );
+      return contributor ? contributor.userName : 'Utilisateur inconnu';
+    });
+    return names.join(', ');
+  }
+
+  onAddTaskSubmit() {
+    this.isTaskSubmitted = true;
+    if (this.addTaskForm.invalid) return;
+
+    const { name, description, dueDate, endDate, priority, assigneeIds } =
+      this.addTaskForm.value.taskData;
+
+    const newTask: LocalTask = {
+      name,
+      description,
+      dueDate,
+      endDate,
+      priority,
+      assigneeIds,
+    };
+
+    console.log('new taskkk', newTask);
+
+    this.taskService
+      .createTask(this.projectId, newTask)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (createdTask) => {
+          this.hideAddTaskBlock();
+          this.loadProject();
+          this.activeTab = 'tasks';
+          this.toastService.showToast(
+            `Tâche "${createdTask.name}" ajoutée avec succès !`,
+            'success'
+          );
+        },
+        error: (err) => {
+          console.error('Erreur lors de la création de la tâche :', err);
+          this.toastService.showToast(
+            "Erreur lors de l'ajout de la tâche",
             'error'
           );
         },
