@@ -83,6 +83,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     return this.addContributorForm.get('contributorData.role') as FormControl;
   }
 
+  goToHomePage() {
+    this.router.navigate(['/home']);
+  }
+
   logOut(): void {
     this.authService.logout();
   }
@@ -106,6 +110,25 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
   }
 
+  loadProject(): void {
+    this.loading = true;
+    this.projectService
+      .getProjectById(this.projectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.project = data;
+          this.loading = false;
+        },
+        error: () => {
+          this.errorMessage = 'Erreur lors du chargement du projet';
+          this.loading = false;
+        },
+      });
+  }
+
+  // Méthodes de gestion des contributeurs
+
   onAddContributorSubmit() {
     this.submitted = true;
     if (this.addContributorForm.invalid) return;
@@ -118,13 +141,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .addContributor(this.projectId, email, role)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
+        next: (addedContributor) => {
           this.hideAddContributorBlock();
           this.loadProject();
           this.activeTab = 'members';
           this.toastService.showToast(
-            `Contributeur "${email}" ajouté avec le rôle ${this.getRoleLabel(
-              role
+            `Contributeur "${
+              addedContributor.userEmail
+            }" ajouté avec le rôle ${this.getRoleLabel(
+              addedContributor.role
             )} !`,
             'success'
           );
@@ -135,28 +160,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
             "Erreur lors de l'ajout du contributeur",
             'error'
           );
-        },
-      });
-  }
-
-  goToHomePage() {
-    this.router.navigate(['/home']);
-  }
-
-  loadProject(): void {
-    this.loading = true;
-    this.projectService
-      .getProjectById(this.projectId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.project = data;
-          console.log('projets in loadprojjj', this.project);
-          this.loading = false;
-        },
-        error: () => {
-          this.errorMessage = 'Erreur lors du chargement du projet';
-          this.loading = false;
         },
       });
   }
@@ -200,15 +203,21 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedContributor) => {
-          console.log('Contributeur reçu du backend:', updatedContributor); // 🔍 Debug
           this.loadProject();
           this.loading = false;
-          console.log(`Rôle de ${contributor.userName} changé en ${newRole}`);
+          this.toastService.showToast(
+            `${updatedContributor.userName} est maintenant ${updatedContributor.role}`,
+            'success'
+          );
         },
         error: (err) => {
           this.errorMessage = 'Erreur lors de la modification du rôle';
           this.loading = false;
           console.error('Erreur:', err);
+          this.toastService.showToast(
+            `Le rôle n'a pas pu être mis à jour`,
+            'error'
+          );
         },
       });
   }
