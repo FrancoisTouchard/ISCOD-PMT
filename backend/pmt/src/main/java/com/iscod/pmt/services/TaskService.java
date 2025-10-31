@@ -13,8 +13,10 @@ public interface TaskService {
 
 	List<Task> findTasksByProjectId(UUID projectId);
 
-	Task addTask(UUID projectId, String name, String description, LocalDate dueDate, TaskPriority priority);
+	Task addTask(UUID projectId, String name, String description, LocalDate dueDate, TaskPriority priority, LocalDate endDate);
 
 	void deleteTaskById(UUID taskId);
+	
+	void assignTaskToUser(UUID taskId, UUID userId, UUID projectId);
 
 }

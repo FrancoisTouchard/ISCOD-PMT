@@ -34,16 +34,40 @@ public class TaskController {
 	   
 	@PostMapping("/project/{projectId}")
 	@ResponseStatus(code = HttpStatus.CREATED)
-	public Task addTask(@PathVariable UUID projectId, @RequestBody Map<String, String> taskData) {
+	public Task addTask(@PathVariable UUID projectId, @RequestBody Map<String, Object> taskData) {
 	    
-	    	String name = taskData.get("name");
-	    	String description = taskData.get("description");
-	    	String dueDateStr = taskData.get("dueDate");
-	    	LocalDate dueDate = LocalDate.parse(dueDateStr);
-	    	String priorityStr = taskData.get("priority");
-	    	TaskPriority priority = TaskPriority.valueOf(priorityStr);
+			// champs obligatoires
+	    	String name = (String) taskData.get("name");
+	        LocalDate dueDate = LocalDate.parse((String) taskData.get("dueDate"));
+	        TaskPriority priority = TaskPriority.valueOf((String) taskData.get("priority"));
+	        // champs optionnels
+	        String description = null;
+	        if(taskData.containsKey("description") && taskData.get("description") != null) {
+	        	description = (String) taskData.get("description");
+	        }
+	        LocalDate endDate = null;
+	        if (taskData.containsKey("endDate") && taskData.get("endDate") != null) {
+	            endDate = LocalDate.parse((String) taskData.get("endDate"));
+	        }
+	        
+	        Task task = taskService.addTask(projectId, name, description, dueDate, priority, endDate);
+
+	        if(taskData.containsKey("assigneeIds")) {
+	            List<String> assigneeIds = ((List<?>) taskData.get("assigneeIds"))
+	                .stream()
+	                .map(Object::toString)
+	                .toList();
+	            for(String idStr : assigneeIds) {
+	                UUID userId = UUID.fromString(idStr);
+	                taskService.assignTaskToUser(task.getId(), userId, projectId);
+	            }
+	        }
+
+	        
+	        
+	        
 	    	
-	    	return taskService.addTask(projectId, name, description, dueDate, priority);
+	    	return task;
 	}
 	    
 	@DeleteMapping("/{taskId}")
