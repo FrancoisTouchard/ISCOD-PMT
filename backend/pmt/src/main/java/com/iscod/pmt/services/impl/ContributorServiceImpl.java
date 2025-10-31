@@ -25,7 +25,7 @@ public class ContributorServiceImpl implements ContributorService {
     private ContributorRepository contributorRepository;
     
     @Autowired
-    private ProjectRepository projectRepositoy;
+    private ProjectRepository projectRepository;
     
     @Autowired
     private UserRepository userRepository;
@@ -47,7 +47,7 @@ public class ContributorServiceImpl implements ContributorService {
 	
     @Override
     public Contributor addContributorByEmail(UUID projectId, String email, Role role) {
-        Project project = projectRepositoy.findById(projectId)
+        Project project = projectRepository.findById(projectId)
         		.orElseThrow(ResourceNotFoundException::new);
 
         
