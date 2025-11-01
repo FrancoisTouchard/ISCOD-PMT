@@ -13,7 +13,7 @@ import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/project.service';
 import { ToastService } from '../../services/toast.service';
 import { Project } from '../../models/project.model';
-import { getRoleString } from '../../utils/labels';
+import { getRoleLabel } from '../../utils/labels';
 
 @Component({
   selector: 'app-home',
@@ -23,7 +23,7 @@ import { getRoleString } from '../../utils/labels';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  getRoleLabel = getRoleString;
+  getRoleLabel = getRoleLabel;
   loading = false;
   modal = false;
   projects: Project[] = [];

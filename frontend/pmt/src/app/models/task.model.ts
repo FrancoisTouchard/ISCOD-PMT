@@ -8,7 +8,7 @@ export interface LocalTask {
   dueDate: string;
   endDate?: string;
   priority: Priority;
-  status?: TaskStatus;
+  status: TaskStatus;
   assignments?: TaskAssignment[];
   assigneeIds?: string[];
 }

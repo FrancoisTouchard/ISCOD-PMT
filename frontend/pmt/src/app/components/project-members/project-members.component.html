@@ -15,9 +15,13 @@
           <td>{{ contributor?.userEmail }}</td>
           <td>
             <div class="d-flex align-items-center gap-2">
-              <span class="badge bg-danger">{{
-                getRoleLabel(contributor.role)
-              }}</span>
+              <span
+                class="badge"
+                [ngStyle]="{
+                  'background-color': getRoleLabel(contributor.role).color
+                }"
+                >{{ getRoleLabel(contributor.role).label }}</span
+              >
               <!-- Dropdown modification rôle -->
               <div ngbDropdown class="d-inline-block position-static">
                 <button
@@ -36,7 +40,7 @@
                     [hidden]="role === contributor?.role"
                     (click)="onUpdateContributorRole(contributor, role)"
                   >
-                    {{ getRoleLabel(role) }}
+                    {{ getRoleLabel(role).label }}
                   </button>
                 </div>
               </div>

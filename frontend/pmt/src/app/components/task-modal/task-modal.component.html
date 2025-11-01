@@ -38,13 +38,25 @@
             <div class="col-md-6">
               <label class="form-label fw-bold">Statut</label>
               <p class="form-control-plaintext">
-                <span class="badge bg-warning">{{ task.status }}</span>
+                <span
+                  class="badge"
+                  [ngStyle]="{
+                    'background-color': getStatusLabel(task.status).color
+                  }"
+                  >{{ getStatusLabel(task.status).label }}</span
+                >
               </p>
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold">Priorité</label>
               <p class="form-control-plaintext">
-                <span class="badge bg-danger">{{ task.priority }}</span>
+                <span
+                  class="badge"
+                  [ngStyle]="{
+                    'background-color': getPriorityLabel(task.priority).color
+                  }"
+                  >{{ getPriorityLabel(task.priority).label }}</span
+                >
               </p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
+import { CommonModule, NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
 import {
   Component,
   EventEmitter,
@@ -18,6 +18,7 @@ import { Priority } from '../../models/priority.enum';
 import { Project } from '../../models/project.model';
 import { LocalTask, Task } from '../../models/task.model';
 import { TaskStatus } from '../../models/taskStatus.enum';
+import { getPriorityLabel, getStatusLabel } from '../../utils/labels';
 
 @Component({
   selector: 'app-task-modal',
@@ -29,6 +30,7 @@ import { TaskStatus } from '../../models/taskStatus.enum';
     NgClass,
     NgFor,
     NgIf,
+    NgStyle,
   ],
   templateUrl: './task-modal.component.html',
   styleUrl: './task-modal.component.scss',
@@ -46,6 +48,8 @@ export class TaskModalComponent implements OnChanges {
   isEditMode = false;
   Priority = Priority;
   TaskStatus = TaskStatus;
+  getPriorityLabel = getPriorityLabel;
+  getStatusLabel = getStatusLabel;
 
   constructor() {
     this.taskForm = new FormGroup({

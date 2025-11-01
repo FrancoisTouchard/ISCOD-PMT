@@ -18,10 +18,22 @@
           <td>{{ task.name }}</td>
           <td>{{ task.description }}</td>
           <td>
-            <span class="badge bg-warning">{{ task.status }}</span>
+            <span
+              class="badge"
+              [ngStyle]="{
+                'background-color': getStatusLabel(task.status).color
+              }"
+              >{{ getStatusLabel(task.status).label }}</span
+            >
           </td>
           <td>
-            <span class="badge bg-danger">{{ task.priority }}</span>
+            <span
+              class="badge"
+              [ngStyle]="{
+                'background-color': getPriorityLabel(task.priority).color
+              }"
+              >{{ getPriorityLabel(task.priority).label }}</span
+            >
           </td>
           <td>{{ task.dueDate }}</td>
           <td>{{ task.endDate }}</td>

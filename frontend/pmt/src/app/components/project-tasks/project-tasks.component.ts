@@ -1,15 +1,16 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgStyle } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Priority } from '../../models/priority.enum';
 import { Project } from '../../models/project.model';
 import { LocalTask, Task } from '../../models/task.model';
 import { TaskModalComponent } from '../task-modal/task-modal.component';
 import { TaskStatus } from '../../models/taskStatus.enum';
+import { getPriorityLabel, getStatusLabel } from '../../utils/labels';
 
 @Component({
   selector: 'app-project-tasks',
   standalone: true,
-  imports: [CommonModule, TaskModalComponent],
+  imports: [CommonModule, TaskModalComponent, NgStyle],
   templateUrl: './project-tasks.component.html',
   styleUrl: './project-tasks.component.scss',
 })
@@ -30,6 +31,8 @@ export class ProjectTasksComponent {
   isModalOpen = false;
   Priority = Priority;
   TaskStatus = TaskStatus;
+  getPriorityLabel = getPriorityLabel;
+  getStatusLabel = getStatusLabel;
 
   openCreateModal(): void {
     this.selectedTask = null;

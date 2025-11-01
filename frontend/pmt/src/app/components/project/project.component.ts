@@ -16,7 +16,7 @@ import {
   ProjectMembersComponent,
   ContributorRoleUpdateData,
 } from '../project-members/project-members.component';
-import { getRoleString } from '../../utils/labels';
+import { getRoleLabel } from '../../utils/labels';
 import {
   FormControl,
   FormGroup,
@@ -49,7 +49,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   isContributorSubmitted = false;
   activeTab: string = 'tasks';
   private destroy$ = new Subject<void>();
-  getRoleLabel = getRoleString;
+  getRoleLabel = getRoleLabel;
   loading = false;
   project: Project | null = null;
   projectId = '';
@@ -234,11 +234,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
           this.loadProject();
           this.activeTab = 'members';
           this.toastService.showToast(
-            `Contributeur "${
-              addedContributor.userEmail
-            }" ajouté avec le rôle ${this.getRoleLabel(
-              addedContributor.role
-            )} !`,
+            `Contributeur "${addedContributor.userEmail}" ajouté avec le rôle ${
+              this.getRoleLabel(addedContributor.role).label
+            } !`,
             'success'
           );
           this.hideAddContributorBlock();

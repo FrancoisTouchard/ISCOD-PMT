@@ -1,11 +1,11 @@
-import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
+import { CommonModule, NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Contributor } from '../../models/contributor.model';
 import { Project } from '../../models/project.model';
 import { Role } from '../../models/role.enum';
-import { getRoleString } from '../../utils/labels';
+import { getRoleLabel } from '../../utils/labels';
 
 export interface ContributorRoleUpdateData {
   contributorId: string;
@@ -22,6 +22,7 @@ export interface ContributorRoleUpdateData {
     NgClass,
     NgFor,
     NgIf,
+    NgStyle,
   ],
   templateUrl: './project-members.component.html',
   styleUrl: './project-members.component.scss',
@@ -34,7 +35,7 @@ export class ProjectMembersComponent {
   @Output() contributorRoleUpdated =
     new EventEmitter<ContributorRoleUpdateData>();
 
-  getRoleLabel = getRoleString;
+  getRoleLabel = getRoleLabel;
   Role = Role;
   roles = Object.values(Role);
 

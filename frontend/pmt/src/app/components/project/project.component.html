@@ -65,13 +65,13 @@
             <label class="input-group-text" for="role">Rôle</label>
             <select id="role" class="form-select" formControlName="role">
               <option [value]="Role.ADMINISTRATEUR">
-                {{ getRoleLabel(Role.ADMINISTRATEUR) }}
+                {{ getRoleLabel(Role.ADMINISTRATEUR).label }}
               </option>
               <option [value]="Role.MEMBRE">
-                {{ getRoleLabel(Role.MEMBRE) }}
+                {{ getRoleLabel(Role.MEMBRE).label }}
               </option>
               <option [value]="Role.OBSERVATEUR">
-                {{ getRoleLabel(Role.OBSERVATEUR) }}
+                {{ getRoleLabel(Role.OBSERVATEUR).label }}
               </option>
             </select>
           </div>
