@@ -10,7 +10,7 @@ export interface LocalTask {
   priority: Priority;
   status?: TaskStatus;
   assignments?: TaskAssignment[];
-  assigneeIds?: String[];
+  assigneeIds?: string[];
 }
 
 export interface Task extends LocalTask {

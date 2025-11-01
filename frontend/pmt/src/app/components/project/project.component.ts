@@ -5,10 +5,9 @@ import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 import { AuthService } from '../../services/auth.service';
-import { Role } from '../../models/role.enum';
 import { ContributorService } from '../../services/contributor.service';
 import { ToastService } from '../../services/toast.service';
-import { LocalTask } from '../../models/task.model';
+import { LocalTask, Task } from '../../models/task.model';
 import { TaskService } from '../../services/task.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandlerService } from '../../services/errorHandler.service';
@@ -19,6 +18,7 @@ import {
   ContributorRoleUpdateData,
 } from '../project-members/project-members.component';
 import { getRoleString } from '../../utils/labels';
+import { TaskAssignment } from '../../models/taskAssignment.model';
 
 @Component({
   selector: 'app-project',
@@ -134,6 +134,28 @@ export class ProjectComponent implements OnInit, OnDestroy {
           this.errorHandlerService.handleError(
             err,
             "Erreur lors de l'ajout de la tâche"
+          );
+        },
+      });
+  }
+
+  onTaskUpdated(event: { taskId: string; updatedTask: Task }) {
+    this.taskService
+      .updateTask(this.projectId, event.taskId, event.updatedTask)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedTask) => {
+          this.toastService.showToast(
+            `Tâche "${updatedTask.name}" mise à jour avec succès !`,
+            'success'
+          );
+          this.loadProject();
+        },
+        error: (err) => {
+          console.error('Erreur lors de la mise à jour de la tâche :', err);
+          this.errorHandlerService.handleError(
+            err,
+            'Erreur lors de la mise à jour de la tâche'
           );
         },
       });

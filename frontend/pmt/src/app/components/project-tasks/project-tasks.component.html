@@ -148,11 +148,222 @@
           <td>{{ task.endDate }}</td>
           <td>{{ getAssigneesNames(task) }}</td>
           <td>
-            <button class="btn btn-sm btn-primary">Voir</button>
-            <button class="btn btn-sm btn-warning">Modifier</button>
+            <button class="btn btn-sm btn-primary" (click)="viewTask(task)">
+              Voir
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Modal de détails de la tâche -->
+  <div *ngIf="selectedTask" class="modal-overlay" (click)="closeTaskModal()">
+    <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Détails de la tâche</h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeTaskModal()"
+          ></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Mode lecture -->
+          <div *ngIf="!isEditMode">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Nom</label>
+              <p class="form-control-plaintext">{{ selectedTask.name }}</p>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Description</label>
+              <p class="form-control-plaintext">
+                {{ selectedTask.description || "Aucune description" }}
+              </p>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Date d'échéance</label>
+                <p class="form-control-plaintext">{{ selectedTask.dueDate }}</p>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Date de fin</label>
+                <p class="form-control-plaintext">
+                  {{ selectedTask.endDate || "Non définie" }}
+                </p>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Statut</label>
+                <p class="form-control-plaintext">
+                  <span class="badge bg-warning">{{
+                    selectedTask.status
+                  }}</span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Priorité</label>
+                <p class="form-control-plaintext">
+                  <span class="badge bg-danger">{{
+                    selectedTask.priority
+                  }}</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Assigné à</label>
+              <p class="form-control-plaintext">
+                {{ getAssigneesNames(selectedTask) || "Personne" }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Mode édition -->
+          <form
+            *ngIf="isEditMode"
+            [formGroup]="editTaskForm"
+            (ngSubmit)="onEditTaskSubmit()"
+          >
+            <div formGroupName="taskData">
+              <div class="mb-3">
+                <label class="form-label" for="editTaskName">Nom</label>
+                <input
+                  id="editTaskName"
+                  class="form-control"
+                  formControlName="name"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="editTaskDescription"
+                  >Description</label
+                >
+                <textarea
+                  id="editTaskDescription"
+                  class="form-control"
+                  formControlName="description"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label" for="editDueDate"
+                    >Date d'échéance</label
+                  >
+                  <input
+                    id="editDueDate"
+                    class="form-control"
+                    type="date"
+                    formControlName="dueDate"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="editEndDate"
+                    >Date de fin</label
+                  >
+                  <input
+                    id="editEndDate"
+                    class="form-control"
+                    type="date"
+                    formControlName="endDate"
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="editPriority">Priorité</label>
+                <select
+                  id="editPriority"
+                  class="form-select"
+                  formControlName="priority"
+                  required
+                >
+                  <option [value]="Priority.LOW">Basse</option>
+                  <option [value]="Priority.MEDIUM">Moyenne</option>
+                  <option [value]="Priority.HIGH">Haute</option>
+                  <option [value]="Priority.CRITICAL">Critique</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Assigné à</label>
+                <div ngbDropdown class="d-inline-block">
+                  <button
+                    class="btn btn-outline-secondary dropdown-toggle"
+                    ngbDropdownToggle
+                    type="button"
+                  >
+                    Sélectionner
+                  </button>
+                  <div ngbDropdownMenu class="p-2">
+                    <div *ngFor="let c of project?.contributors">
+                      <input
+                        #editCheckbox
+                        type="checkbox"
+                        [value]="c.id.idUser"
+                        (change)="
+                          onEditAssigneeToggle(
+                            c.id.idUser,
+                            editCheckbox.checked
+                          )
+                        "
+                        [checked]="
+                          editTaskAssigneeIds.value.includes(c.id.idUser)
+                        "
+                      />
+                      {{ c.userName }} ({{ c.userEmail }})
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            *ngIf="!isEditMode"
+            class="btn btn-secondary"
+            (click)="closeTaskModal()"
+          >
+            Fermer
+          </button>
+          <button
+            *ngIf="!isEditMode"
+            class="btn btn-primary"
+            (click)="enableEditMode()"
+          >
+            Modifier
+          </button>
+
+          <button
+            *ngIf="isEditMode"
+            class="btn btn-secondary"
+            type="button"
+            (click)="cancelEdit()"
+          >
+            Annuler
+          </button>
+          <button
+            *ngIf="isEditMode"
+            class="btn btn-primary"
+            type="submit"
+            (click)="onEditTaskSubmit()"
+          >
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

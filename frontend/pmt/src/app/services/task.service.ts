@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Subscription, tap } from 'rxjs';
+import { Observable, Subscription, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { LocalTask, Task } from '../models/task.model';
 
@@ -30,6 +30,14 @@ export class TaskService implements OnDestroy {
         this.tasks = [...this.tasks, newTask];
       })
     );
+  }
+
+  updateTask(
+    projectId: string,
+    taskId: string,
+    updatedTask: Task
+  ): Observable<Task> {
+    return this.apiService.patchTask(projectId, taskId, updatedTask);
   }
 
   deleteTaskById(taskId: string) {

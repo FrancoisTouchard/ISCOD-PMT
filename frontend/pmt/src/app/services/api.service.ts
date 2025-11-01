@@ -101,6 +101,26 @@ export class ApiService {
     );
   }
 
+  patchTask(
+    projectId: string,
+    taskId: string,
+    updatedTask: Task
+  ): Observable<Task> {
+    const payload = {
+      name: updatedTask.name,
+      description: updatedTask.description,
+      dueDate: updatedTask.dueDate,
+      endDate: updatedTask.endDate,
+      priority: updatedTask.priority,
+      assigneeIds: updatedTask.assigneeIds,
+    };
+
+    return this.httpClient.patch<Task>(
+      `${API_URL}tasks/project/${projectId}/${taskId}`,
+      payload
+    );
+  }
+
   deleteTaskById(taskId: string) {
     return this.httpClient.delete<Task[]>(`${API_URL}tasks/${taskId}`);
   }
