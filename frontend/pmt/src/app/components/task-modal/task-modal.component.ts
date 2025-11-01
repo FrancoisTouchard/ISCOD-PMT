@@ -17,6 +17,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Priority } from '../../models/priority.enum';
 import { Project } from '../../models/project.model';
 import { LocalTask, Task } from '../../models/task.model';
+import { TaskStatus } from '../../models/taskStatus.enum';
 
 @Component({
   selector: 'app-task-modal',
@@ -44,6 +45,7 @@ export class TaskModalComponent implements OnChanges {
   taskForm: FormGroup;
   isEditMode = false;
   Priority = Priority;
+  TaskStatus = TaskStatus;
 
   constructor() {
     this.taskForm = new FormGroup({
@@ -52,6 +54,7 @@ export class TaskModalComponent implements OnChanges {
       dueDate: new FormControl(null, [Validators.required]),
       endDate: new FormControl(null),
       priority: new FormControl(Priority.MEDIUM, [Validators.required]),
+      status: new FormControl(TaskStatus.TODO, [Validators.required]),
       assigneeIds: new FormControl([]),
     });
   }
@@ -76,6 +79,10 @@ export class TaskModalComponent implements OnChanges {
     return this.taskForm.get('assigneeIds') as FormControl;
   }
 
+  get taskStatusOptions() {
+    return Object.values(TaskStatus);
+  }
+
   initializeForm(): void {
     if (this.mode === 'create') {
       this.taskForm.reset({
@@ -84,6 +91,7 @@ export class TaskModalComponent implements OnChanges {
         dueDate: null,
         endDate: null,
         priority: Priority.MEDIUM,
+        status: TaskStatus.TODO,
         assigneeIds: [],
       });
       this.isEditMode = true;
@@ -96,6 +104,7 @@ export class TaskModalComponent implements OnChanges {
         dueDate: this.task.dueDate,
         endDate: this.task.endDate,
         priority: this.task.priority,
+        status: this.task.status,
         assigneeIds: assigneeIds,
       });
       this.isEditMode = this.mode === 'edit';
@@ -146,6 +155,7 @@ export class TaskModalComponent implements OnChanges {
       dueDate: this.taskForm.value.dueDate,
       endDate: this.taskForm.value.endDate,
       priority: this.taskForm.value.priority,
+      status: this.taskForm.value.status,
       assigneeIds: this.taskForm.value.assigneeIds || [],
     };
 

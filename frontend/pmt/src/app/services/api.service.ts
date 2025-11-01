@@ -92,6 +92,7 @@ export class ApiService {
       dueDate: task.dueDate,
       endDate: task.endDate,
       priority: task.priority,
+      status: task.status,
       assigneeIds: task.assigneeIds,
     };
 
@@ -112,6 +113,7 @@ export class ApiService {
       dueDate: updatedTask.dueDate,
       endDate: updatedTask.endDate,
       priority: updatedTask.priority,
+      status: updatedTask.status,
       assigneeIds: updatedTask.assigneeIds,
     };
 

@@ -4,6 +4,7 @@ import { Priority } from '../../models/priority.enum';
 import { Project } from '../../models/project.model';
 import { LocalTask, Task } from '../../models/task.model';
 import { TaskModalComponent } from '../task-modal/task-modal.component';
+import { TaskStatus } from '../../models/taskStatus.enum';
 
 @Component({
   selector: 'app-project-tasks',
@@ -28,6 +29,7 @@ export class ProjectTasksComponent {
   modalMode: 'create' | 'view' | 'edit' = 'view';
   isModalOpen = false;
   Priority = Priority;
+  TaskStatus = TaskStatus;
 
   openCreateModal(): void {
     this.selectedTask = null;

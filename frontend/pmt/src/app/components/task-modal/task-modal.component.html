@@ -128,10 +128,25 @@
               formControlName="priority"
               required
             >
-              <option [value]="Priority.LOW">Basse</option>
-              <option [value]="Priority.MEDIUM">Moyenne</option>
-              <option [value]="Priority.HIGH">Haute</option>
-              <option [value]="Priority.CRITICAL">Critique</option>
+              <option [ngValue]="Priority.LOW">Basse</option>
+              <option [ngValue]="Priority.MEDIUM">Moyenne</option>
+              <option [ngValue]="Priority.HIGH">Haute</option>
+              <option [ngValue]="Priority.CRITICAL">Critique</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="status">Statut *</label>
+            <select
+              id="status"
+              class="form-select"
+              formControlName="status"
+              required
+            >
+              <option [ngValue]="TaskStatus.TODO">À faire</option>
+              <option [ngValue]="TaskStatus.IN_PROGRESS">En cours</option>
+              <option [ngValue]="TaskStatus.DONE">Fait</option>
+              <option [ngValue]="TaskStatus.BLOCKED">Bloqué</option>
             </select>
           </div>
 
