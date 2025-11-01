@@ -23,7 +23,6 @@ import { getRoleString } from '../../utils/labels';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  errorMessage = '';
   getRoleLabel = getRoleString;
   loading = false;
   modal = false;
@@ -51,7 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.userId) {
       this.loadProjects();
     } else {
-      this.errorMessage = 'Utilisateur non identifié';
+      this.toastService.showToast('Utilisateur non identifé', 'error');
     }
   }
 
@@ -86,7 +85,10 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: () => {
-          this.errorMessage = 'Erreur lors du chargement des projets';
+          this.toastService.showToast(
+            'Erreur lors du chargement des données',
+            'error'
+          );
           this.loading = false;
         },
       });
@@ -150,7 +152,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           );
         },
         error: () => {
-          this.errorMessage = 'Erreur lors de la suppression du projet';
           this.toastService.showToast(
             'Erreur lors de la suppression du projet.',
             'error'

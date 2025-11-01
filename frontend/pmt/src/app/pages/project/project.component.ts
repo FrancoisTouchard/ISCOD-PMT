@@ -20,6 +20,8 @@ import { ToastService } from '../../services/toast.service';
 import { Priority } from '../../models/priority.enum';
 import { LocalTask, Task } from '../../models/task.model';
 import { TaskService } from '../../services/task.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandlerService } from '../../services/errorHandler.service';
 
 @Component({
   selector: 'app-project',
@@ -39,7 +41,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
   addContributorForm: FormGroup;
   addTaskForm: FormGroup;
   private destroy$ = new Subject<void>();
-  errorMessage = '';
   getRoleLabel = getRoleString;
   loading = false;
   isAddContributorBlockVisible = false;
@@ -56,6 +57,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private authService: AuthService,
     private contributorService: ContributorService,
+    private errorHandlerService: ErrorHandlerService,
     private projectService: ProjectService,
     private taskService: TaskService,
     private toastService: ToastService,
@@ -84,7 +86,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     if (this.projectId) {
       this.loadProject();
     } else {
-      this.errorMessage = 'Projet non trouvé';
+      this.toastService.showToast(`Projet non trouvé`, 'error');
     }
   }
 
@@ -168,11 +170,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
           console.log('Projet et tâches chargés', { project, tasks });
         },
         error: (err) => {
-          console.error(
-            'Erreur lors du chargement des données du projet :',
-            err
+          console.error(err);
+          this.toastService.showToast(
+            'Erreur lors du chargement des données',
+            'error'
           );
-          this.errorMessage = 'Erreur lors du chargement des données';
           this.loading = false;
         },
       });
@@ -205,11 +207,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
             'success'
           );
         },
-        error: (err) => {
-          console.error("Erreur lors de l'ajout du contributeur: ", err);
-          this.toastService.showToast(
-            "Erreur lors de l'ajout du contributeur",
-            'error'
+        error: (err: HttpErrorResponse) => {
+          this.errorHandlerService.handleError(
+            err,
+            "Erreur lors de l'ajout du contributeur"
           );
         },
       });
@@ -262,7 +263,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
           );
         },
         error: (err) => {
-          this.errorMessage = 'Erreur lors de la modification du rôle';
           this.loading = false;
           console.error('Erreur:', err);
           this.toastService.showToast(
@@ -347,9 +347,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Erreur lors de la création de la tâche :', err);
-          this.toastService.showToast(
-            "Erreur lors de l'ajout de la tâche",
-            'error'
+          this.errorHandlerService.handleError(
+            err,
+            "Erreur lors de l'ajout de la tâche"
           );
         },
       });
