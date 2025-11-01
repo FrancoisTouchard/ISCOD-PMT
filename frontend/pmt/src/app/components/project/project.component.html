@@ -9,7 +9,7 @@
   </div>
 </nav>
 
-<div class="container mt-5">
+<div class="container mt-4">
   <h1 class="mb-4">{{ project?.name }}</h1>
   <h2 class="mb-4">{{ project?.description }}</h2>
 
@@ -30,6 +30,65 @@
     >
       + Ajouter un membre
     </button>
+  </div>
+
+  <!-- Form d'ajout de contributeur -->
+  <div *ngIf="showMemberForm" class="mb-4">
+    <div class="custom-modal">
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter un contributeur</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="hideAddContributorBlock()"
+        ></button>
+      </div>
+
+      <form
+        [formGroup]="addContributorForm"
+        (ngSubmit)="onContributorAdded()"
+        [ngClass]="{ submitted: isContributorSubmitted }"
+      >
+        <div formGroupName="contributorData">
+          <div class="input-group mt-3 mb-3">
+            <label class="input-group-text" for="email">Email</label>
+            <input
+              id="email"
+              class="form-control"
+              formControlName="email"
+              placeholder="utilisateur@exemple.com"
+              type="email"
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <label class="input-group-text" for="role">Rôle</label>
+            <select id="role" class="form-select" formControlName="role">
+              <option [value]="Role.ADMINISTRATEUR">
+                {{ getRoleLabel(Role.ADMINISTRATEUR) }}
+              </option>
+              <option [value]="Role.MEMBRE">
+                {{ getRoleLabel(Role.MEMBRE) }}
+              </option>
+              <option [value]="Role.OBSERVATEUR">
+                {{ getRoleLabel(Role.OBSERVATEUR) }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            type="button"
+            (click)="hideAddContributorBlock()"
+          >
+            Annuler
+          </button>
+          <button class="btn btn-primary ms-3" type="submit">Ajouter</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Onglets -->
@@ -103,7 +162,6 @@
         *ngIf="activeTab === 'members'"
         [project]="project"
         [showAddForm]="showMemberForm"
-        (contributorAdded)="onContributorAdded($event)"
         (contributorDeleted)="onContributorDeleted($event)"
         (contributorRoleUpdated)="onContributorRoleUpdated($event)"
         (formClosed)="showMemberForm = false"

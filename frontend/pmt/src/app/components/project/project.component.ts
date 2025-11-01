@@ -7,34 +7,53 @@ import { Project } from '../../models/project.model';
 import { AuthService } from '../../services/auth.service';
 import { ContributorService } from '../../services/contributor.service';
 import { ToastService } from '../../services/toast.service';
-import { LocalTask, Task } from '../../models/task.model';
+import { LocalTask } from '../../models/task.model';
 import { TaskService } from '../../services/task.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandlerService } from '../../services/errorHandler.service';
 import { ProjectTasksComponent } from '../project-tasks/project-tasks.component';
 import {
   ProjectMembersComponent,
-  ContributorAddData,
   ContributorRoleUpdateData,
 } from '../project-members/project-members.component';
 import { getRoleString } from '../../utils/labels';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { Role } from '../../models/role.enum';
+
+interface ContributorAddData {
+  email: string;
+  role: Role;
+}
 
 @Component({
   selector: 'app-project',
   standalone: true,
-  imports: [CommonModule, ProjectTasksComponent, ProjectMembersComponent],
+  imports: [
+    CommonModule,
+    ProjectTasksComponent,
+    ProjectMembersComponent,
+    ReactiveFormsModule,
+  ],
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.scss'],
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   @ViewChild('tasksComp') tasksComp?: ProjectTasksComponent;
 
+  addContributorForm: FormGroup;
+  isContributorSubmitted = false;
   activeTab: string = 'tasks';
   private destroy$ = new Subject<void>();
   getRoleLabel = getRoleString;
   loading = false;
   project: Project | null = null;
   projectId = '';
+  Role = Role;
   showTaskForm = false;
   showMemberForm = false;
 
@@ -47,7 +66,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private taskService: TaskService,
     private toastService: ToastService,
     private router: Router
-  ) {}
+  ) {
+    this.addContributorForm = new FormGroup({
+      contributorData: new FormGroup({
+        email: new FormControl(null, [Validators.required, Validators.email]),
+        role: new FormControl(Role.OBSERVATEUR, [Validators.required]),
+      }),
+    });
+  }
 
   ngOnInit(): void {
     this.projectId = this.route.snapshot.paramMap.get('id') || '';
@@ -63,8 +89,27 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  get email() {
+    return this.addContributorForm.get('contributorData.email') as FormControl;
+  }
+
+  get role() {
+    return this.addContributorForm.get('contributorData.role') as FormControl;
+  }
+
   get tasks() {
     return this.taskService.tasks;
+  }
+
+  hideAddContributorBlock() {
+    this.addContributorForm.reset({
+      contributorData: {
+        email: null,
+        role: Role.OBSERVATEUR,
+      },
+    });
+    this.isContributorSubmitted = false;
+    this.showMemberForm = false;
   }
 
   goToHomePage() {
@@ -171,8 +216,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   // Gestionnaires d'événements pour les contributeurs
 
-  onContributorAdded(data: ContributorAddData): void {
-    console.log('Ajout contributeur:', data);
+  onContributorAdded() {
+    this.isContributorSubmitted = true;
+    if (this.addContributorForm.invalid) return;
+
+    const formValue = this.addContributorForm.value.contributorData;
+    const data: ContributorAddData = {
+      email: formValue.email,
+      role: formValue.role,
+    };
 
     this.contributorService
       .addContributor(this.projectId, data.email, data.role)
@@ -189,6 +241,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
             )} !`,
             'success'
           );
+          this.hideAddContributorBlock();
         },
         error: (err: HttpErrorResponse) => {
           this.errorHandlerService.handleError(
