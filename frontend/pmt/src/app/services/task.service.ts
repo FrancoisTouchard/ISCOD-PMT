@@ -35,7 +35,7 @@ export class TaskService implements OnDestroy {
   updateTask(
     projectId: string,
     taskId: string,
-    updatedTask: Task
+    updatedTask: LocalTask
   ): Observable<Task> {
     return this.apiService.patchTask(projectId, taskId, updatedTask);
   }

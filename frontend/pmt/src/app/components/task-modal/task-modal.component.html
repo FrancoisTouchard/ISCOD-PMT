@@ -1,0 +1,206 @@
+<div *ngIf="isOpen" class="modal-overlay" (click)="close()">
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ title }}</h5>
+        <button type="button" class="btn-close" (click)="close()"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Mode lecture -->
+        <div *ngIf="!isEditMode && task">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nom</label>
+            <p class="form-control-plaintext">{{ task.name }}</p>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Description</label>
+            <p class="form-control-plaintext">
+              {{ task.description || "Aucune description" }}
+            </p>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Date d'échéance</label>
+              <p class="form-control-plaintext">{{ task.dueDate }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Date de fin</label>
+              <p class="form-control-plaintext">
+                {{ task.endDate || "Non définie" }}
+              </p>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Statut</label>
+              <p class="form-control-plaintext">
+                <span class="badge bg-warning">{{ task.status }}</span>
+              </p>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Priorité</label>
+              <p class="form-control-plaintext">
+                <span class="badge bg-danger">{{ task.priority }}</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Assigné à</label>
+            <p class="form-control-plaintext">
+              {{ getAssigneesNames() || "Personne" }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Mode édition/création -->
+        <form *ngIf="isEditMode" [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <label class="form-label" for="taskName">Nom *</label>
+            <input
+              id="taskName"
+              class="form-control"
+              formControlName="name"
+              placeholder="Nom de la tâche"
+              required
+            />
+            <div
+              *ngIf="
+                taskForm.get('name')?.invalid && taskForm.get('name')?.touched
+              "
+              class="text-danger mt-1"
+            >
+              Le nom est requis
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="taskDescription">Description</label>
+            <textarea
+              id="taskDescription"
+              class="form-control"
+              formControlName="description"
+              rows="3"
+              placeholder="Description de la tâche"
+            ></textarea>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label" for="dueDate">Date d'échéance *</label>
+              <input
+                id="dueDate"
+                class="form-control"
+                type="date"
+                formControlName="dueDate"
+                required
+              />
+              <div
+                *ngIf="
+                  taskForm.get('dueDate')?.invalid &&
+                  taskForm.get('dueDate')?.touched
+                "
+                class="text-danger mt-1"
+              >
+                La date d'échéance est requise
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="endDate">Date de fin</label>
+              <input
+                id="endDate"
+                class="form-control"
+                type="date"
+                formControlName="endDate"
+              />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="priority">Priorité *</label>
+            <select
+              id="priority"
+              class="form-select"
+              formControlName="priority"
+              required
+            >
+              <option [value]="Priority.LOW">Basse</option>
+              <option [value]="Priority.MEDIUM">Moyenne</option>
+              <option [value]="Priority.HIGH">Haute</option>
+              <option [value]="Priority.CRITICAL">Critique</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label me-3">Assigné à</label>
+            <div ngbDropdown class="d-inline-block">
+              <button
+                class="btn btn-outline-secondary dropdown-toggle"
+                ngbDropdownToggle
+                type="button"
+              >
+                Sélectionner
+              </button>
+              <div ngbDropdownMenu class="p-2">
+                <div *ngFor="let c of project?.contributors" class="mb-2">
+                  <label class="d-flex align-items-center">
+                    <input
+                      type="checkbox"
+                      [value]="c.id.idUser"
+                      [checked]="assigneeIds.value.includes(c.id.idUser)"
+                      (change)="
+                        onAssigneeToggle(
+                          c.id.idUser,
+                          $any($event.target).checked
+                        )
+                      "
+                      class="me-2"
+                    />
+                    {{ c.userName }} ({{ c.userEmail }})
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <!-- Boutons en mode lecture -->
+        <button *ngIf="!isEditMode" class="btn btn-secondary" (click)="close()">
+          Fermer
+        </button>
+        <button
+          *ngIf="!isEditMode && mode === 'view'"
+          class="btn btn-primary"
+          (click)="enableEditMode()"
+        >
+          Modifier
+        </button>
+
+        <!-- Boutons en mode édition/création -->
+        <button
+          *ngIf="isEditMode"
+          class="btn btn-secondary"
+          type="button"
+          (click)="cancelEdit()"
+        >
+          Annuler
+        </button>
+        <button
+          *ngIf="isEditMode"
+          class="btn btn-primary"
+          type="submit"
+          [disabled]="taskForm.invalid"
+          (click)="onSubmit()"
+        >
+          {{ mode === "create" ? "Créer" : "Enregistrer" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

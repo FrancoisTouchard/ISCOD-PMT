@@ -18,7 +18,7 @@
     <button
       class="btn btn-primary"
       *ngIf="activeTab === 'tasks'"
-      (click)="showAddTaskBlock()"
+      (click)="openTaskModalFromParent()"
     >
       + Ajouter une tâche
     </button>
@@ -79,6 +79,7 @@
       aria-labelledby="tasks-tab"
     >
       <app-project-tasks
+        #tasksComp
         *ngIf="activeTab === 'tasks'"
         [project]="project"
         [tasks]="tasks"

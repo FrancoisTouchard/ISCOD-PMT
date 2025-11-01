@@ -104,7 +104,7 @@ export class ApiService {
   patchTask(
     projectId: string,
     taskId: string,
-    updatedTask: Task
+    updatedTask: LocalTask
   ): Observable<Task> {
     const payload = {
       name: updatedTask.name,

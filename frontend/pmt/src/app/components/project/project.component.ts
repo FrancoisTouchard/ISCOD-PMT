@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
@@ -18,16 +18,17 @@ import {
   ContributorRoleUpdateData,
 } from '../project-members/project-members.component';
 import { getRoleString } from '../../utils/labels';
-import { TaskAssignment } from '../../models/taskAssignment.model';
 
 @Component({
   selector: 'app-project',
   standalone: true,
   imports: [CommonModule, ProjectTasksComponent, ProjectMembersComponent],
   templateUrl: './project.component.html',
-  styleUrl: './project.component.scss',
+  styleUrls: ['./project.component.scss'],
 })
 export class ProjectComponent implements OnInit, OnDestroy {
+  @ViewChild('tasksComp') tasksComp?: ProjectTasksComponent;
+
   activeTab: string = 'tasks';
   private destroy$ = new Subject<void>();
   getRoleLabel = getRoleString;
@@ -80,6 +81,13 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   showAddTaskBlock() {
     this.showTaskForm = true;
+  }
+
+  openTaskModalFromParent(): void {
+    this.activeTab = 'tasks';
+    setTimeout(() => {
+      this.tasksComp?.openCreateModal();
+    });
   }
 
   showAddContributorBlock() {
@@ -139,7 +147,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       });
   }
 
-  onTaskUpdated(event: { taskId: string; updatedTask: Task }) {
+  onTaskUpdated(event: { taskId: string; updatedTask: LocalTask }) {
     this.taskService
       .updateTask(this.projectId, event.taskId, event.updatedTask)
       .pipe(takeUntil(this.destroy$))
