@@ -1,0 +1,111 @@
+<nav class="navbar header bg-primary">
+  <div class="container-fluid">
+    <div>
+      <button class="btn btn-danger" (click)="logOut()">Déconnexion</button>
+      <button class="btn btn-light" (click)="goToHomePage()">
+        Mes Projets
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <h1 class="mb-4">{{ project?.name }}</h1>
+  <h2 class="mb-4">{{ project?.description }}</h2>
+
+  <!-- Boutons d'ajout -->
+  <div class="mb-4 d-flex justify-content-end">
+    <button
+      class="btn btn-primary"
+      *ngIf="activeTab === 'tasks'"
+      (click)="showAddTaskBlock()"
+    >
+      + Ajouter une tâche
+    </button>
+
+    <button
+      class="btn btn-primary"
+      *ngIf="activeTab === 'members'"
+      (click)="showAddContributorBlock()"
+    >
+      + Ajouter un membre
+    </button>
+  </div>
+
+  <!-- Onglets -->
+  <ul class="nav nav-tabs" id="projectTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'tasks'"
+        id="taches-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#taches"
+        type="button"
+        role="tab"
+        aria-controls="taches"
+        [attr.aria-selected]="activeTab === 'tasks'"
+        (click)="setActiveTab('tasks')"
+      >
+        Tâches
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'members'"
+        id="membres-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#membres"
+        type="button"
+        role="tab"
+        aria-controls="membres"
+        [attr.aria-selected]="activeTab === 'members'"
+        (click)="setActiveTab('members')"
+      >
+        Membres
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="projectTabsContent">
+    <!-- composant tâches -->
+    <div
+      class="tab-pane fade"
+      [class.show]="activeTab === 'tasks'"
+      [class.active]="activeTab === 'tasks'"
+      id="tasks"
+      role="tabpanel"
+      aria-labelledby="tasks-tab"
+    >
+      <app-project-tasks
+        *ngIf="activeTab === 'tasks'"
+        [project]="project"
+        [tasks]="tasks"
+        [showAddForm]="showTaskForm"
+        (taskAdded)="onTaskAdded($event)"
+        (formClosed)="showTaskForm = false"
+      ></app-project-tasks>
+    </div>
+
+    <!-- composant membres -->
+    <div
+      class="tab-pane fade"
+      [class.show]="activeTab === 'members'"
+      [class.active]="activeTab === 'members'"
+      id="members"
+      role="tabpanel"
+      aria-labelledby="members-tab"
+    >
+      <app-project-members
+        *ngIf="activeTab === 'members'"
+        [project]="project"
+        [showAddForm]="showMemberForm"
+        (contributorAdded)="onContributorAdded($event)"
+        (contributorDeleted)="onContributorDeleted($event)"
+        (contributorRoleUpdated)="onContributorRoleUpdated($event)"
+        (formClosed)="showMemberForm = false"
+      ></app-project-members>
+    </div>
+  </div>
+</div>

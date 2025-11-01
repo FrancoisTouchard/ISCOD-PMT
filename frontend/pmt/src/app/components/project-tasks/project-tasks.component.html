@@ -1,0 +1,158 @@
+<div>
+  <!-- Bloc d'ajout de tâche -->
+  <div *ngIf="showAddForm" class="mb-4">
+    <div class="custom-modal">
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter une tâche</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="hideAddTaskBlock()"
+        ></button>
+      </div>
+
+      <form
+        [formGroup]="addTaskForm"
+        (ngSubmit)="onAddTaskSubmit()"
+        [ngClass]="{ submitted: isTaskSubmitted }"
+      >
+        <div formGroupName="taskData">
+          <div class="input-group mt-3 mb-3">
+            <label class="input-group-text" for="taskName">Nom</label>
+            <input
+              id="taskName"
+              class="form-control"
+              formControlName="name"
+              placeholder="Nom de la tâche"
+              required
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <label class="input-group-text" for="taskDescription"
+              >Description</label
+            >
+            <textarea
+              id="taskDescription"
+              class="form-control"
+              formControlName="description"
+              rows="2"
+              placeholder="Description de la tâche"
+            ></textarea>
+          </div>
+
+          <div class="input-group mb-3">
+            <label class="input-group-text" for="dueDate"
+              >Date d'échéance</label
+            >
+            <input
+              id="dueDate"
+              class="form-control"
+              type="date"
+              formControlName="dueDate"
+              required
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <label class="input-group-text" for="endDate">Date de fin</label>
+            <input
+              id="endDate"
+              class="form-control"
+              type="date"
+              formControlName="endDate"
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <label class="input-group-text" for="priority">Priorité</label>
+            <select
+              id="priority"
+              class="form-select"
+              formControlName="priority"
+              required
+            >
+              <option [value]="Priority.LOW">Basse</option>
+              <option [value]="Priority.MEDIUM">Moyenne</option>
+              <option [value]="Priority.HIGH">Haute</option>
+              <option [value]="Priority.CRITICAL">Critique</option>
+            </select>
+          </div>
+
+          <div class="input-group mb-3">
+            <label class="input-group-text">Assigné à</label>
+            <div ngbDropdown class="d-inline-block">
+              <button
+                class="btn btn-outline-secondary dropdown-toggle"
+                ngbDropdownToggle
+                type="button"
+              >
+                Sélectionner
+              </button>
+              <div ngbDropdownMenu class="p-2">
+                <div *ngFor="let c of project?.contributors">
+                  <input
+                    #checkbox
+                    type="checkbox"
+                    [value]="c.id.idUser"
+                    (change)="onAssigneeToggle(c.id.idUser, checkbox.checked)"
+                    [checked]="taskAssigneeIds.value.includes(c.id.idUser)"
+                  />
+                  {{ c.userName }} ({{ c.userEmail }})
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            type="button"
+            (click)="hideAddTaskBlock()"
+          >
+            Annuler
+          </button>
+          <button class="btn btn-primary ms-3" type="submit">Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Liste des tâches -->
+  <div class="table-responsive mt-3">
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Statut</th>
+          <th>Priorité</th>
+          <th>Date d'échéance</th>
+          <th>Date de fin</th>
+          <th>Assigné à</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let task of tasks">
+          <td>{{ task.name }}</td>
+          <td>{{ task.description }}</td>
+          <td>
+            <span class="badge bg-warning">{{ task.status }}</span>
+          </td>
+          <td>
+            <span class="badge bg-danger">{{ task.priority }}</span>
+          </td>
+          <td>{{ task.dueDate }}</td>
+          <td>{{ task.endDate }}</td>
+          <td>{{ getAssigneesNames(task) }}</td>
+          <td>
+            <button class="btn btn-sm btn-primary">Voir</button>
+            <button class="btn btn-sm btn-warning">Modifier</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
