@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iscod.pmt.exceptions.ResourceAlreadyExistsException;
 import com.iscod.pmt.exceptions.ResourceNotFoundException;
 import com.iscod.pmt.models.AppUser;
 import com.iscod.pmt.models.Contributor;
@@ -48,15 +49,16 @@ public class ContributorServiceImpl implements ContributorService {
     @Override
     public Contributor addContributorByEmail(UUID projectId, String email, Role role) {
         Project project = projectRepository.findById(projectId)
-        		.orElseThrow(ResourceNotFoundException::new);
+        		.orElseThrow(() -> new ResourceNotFoundException("Projet introuvable ou inexistant")) ;
 
         
         		AppUser user = userRepository.findByEmail(email)
-        				.orElseThrow(ResourceNotFoundException::new);
+                		.orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable ou inexistant")) ;
+
         
         ContributorId contributorId = new ContributorId(user.getId(), projectId);
         if (contributorRepository.existsById(contributorId)) {
-            throw new RuntimeException("Ce contributeur fait déjà partie du projet");
+            throw new ResourceAlreadyExistsException("Ce contributeur fait déjà partie du projet");
         }
         
         Contributor newContributor = new Contributor();
@@ -89,7 +91,7 @@ public class ContributorServiceImpl implements ContributorService {
 	@Override
 	public void deleteById(ContributorId id) {
 		if(!contributorRepository.existsById(id)) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException("Utilisateur introuvable ou inexistant");
 		}
 		contributorRepository.deleteById(id);
 	}

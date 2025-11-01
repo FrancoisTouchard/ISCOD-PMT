@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
 			return userRepository.findById(id).get();
 		}
 		
-		return userRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+		return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable ou inexistant"));
 	}
 	
 	@Override
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
 			return userRepository.findByEmail(email).get();
 		}
 		
-		return userRepository.findByEmail(email).orElseThrow(ResourceNotFoundException::new);
+		return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Aucun utilisateur avec cet email"));
 	}
 
 	@Override

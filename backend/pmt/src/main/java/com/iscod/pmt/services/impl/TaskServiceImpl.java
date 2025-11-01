@@ -17,7 +17,6 @@ import com.iscod.pmt.models.TaskAssignment;
 import com.iscod.pmt.models.TaskPriority;
 import com.iscod.pmt.repositories.ContributorRepository;
 import com.iscod.pmt.repositories.ProjectRepository;
-import com.iscod.pmt.repositories.TaskAssignmentRepository;
 import com.iscod.pmt.repositories.TaskRepository;
 import com.iscod.pmt.services.TaskService;
 
@@ -32,9 +31,6 @@ public class TaskServiceImpl implements TaskService {
     
     @Autowired
     private ContributorRepository contributorRepository;
-
-    @Autowired
-    private TaskAssignmentRepository taskAssignmentRepository;
     
 	@Override
 	public List<Task> findAll() {
@@ -51,7 +47,8 @@ public class TaskServiceImpl implements TaskService {
 
 	@Override
 	public Task addTask(UUID projectId, String name, String description, LocalDate dueDate, TaskPriority priority, LocalDate endDate) {
-        Project project = projectRepository.findById(projectId).orElseThrow(ResourceNotFoundException::new);
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Projet introuvable ou inexistant"));
+
         
         Task newTask = new Task();
         newTask.setProject(project);
@@ -67,18 +64,18 @@ public class TaskServiceImpl implements TaskService {
 	@Override
 	public void deleteTaskById(UUID taskId) {
 		if(!taskRepository.existsById(taskId)) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException("Tâche introuvable ou inexistante");
 		}
 		taskRepository.deleteById(taskId);
 	}
 	
 	@Override
 	public void assignTaskToUser(UUID taskId, UUID userId, UUID projectId) {
-	    Task task = taskRepository.findById(taskId).orElseThrow(ResourceNotFoundException::new);
+	    Task task = taskRepository.findById(taskId).orElseThrow(() -> new ResourceNotFoundException("Tâche introuvable ou inexistante"));
 	    AppUser user = contributorRepository.findById(new ContributorId(userId, projectId))
-	            .orElseThrow(ResourceNotFoundException::new)
+        		.orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable ou inexistant"))
 	            .getUser();
-	    Project project = projectRepository.findById(projectId).orElseThrow(ResourceNotFoundException::new);
+	    Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Projet introuvable ou inexistant"));
 
 	    TaskAssignment assignment = new TaskAssignment(task, user, project);
 	    task.getAssignments().add(assignment);

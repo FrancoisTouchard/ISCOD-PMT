@@ -50,7 +50,7 @@ public class ProjectServiceImpl implements ProjectService {
 			return projectRepository.findById(id).get();
 		}
 		
-		return projectRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+		return projectRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Projet introuvable ou inexistant"));
 	}
 
 
