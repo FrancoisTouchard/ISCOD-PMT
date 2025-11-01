@@ -48,9 +48,8 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Override
-	public Task addTask(UUID projectId, String name, String description, LocalDate dueDate, TaskPriority priority, LocalDate endDate) {
+	public Task addTask(UUID projectId, String name, String description, LocalDate dueDate, TaskPriority priority, LocalDate endDate, TaskStatus status) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Projet introuvable ou inexistant"));
-
         
         Task newTask = new Task();
         newTask.setProject(project);
@@ -59,6 +58,7 @@ public class TaskServiceImpl implements TaskService {
         newTask.setDueDate(dueDate);
         newTask.setPriority(priority);
         newTask.setEndDate(endDate);
+        newTask.setStatus(status);
 
 		return taskRepository.save(newTask);
 	}

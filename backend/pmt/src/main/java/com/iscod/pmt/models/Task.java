@@ -28,7 +28,7 @@ public class Task {
     private TaskPriority priority;
     
     @Enumerated(EnumType.STRING)
-    private TaskStatus status = TaskStatus.TODO;
+    private TaskStatus status;
     
 	@NotNull(message="Une tâche doit avoir une date d'échéance.")
     private LocalDate dueDate;

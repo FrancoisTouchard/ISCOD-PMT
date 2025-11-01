@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.iscod.pmt.models.Task;
 import com.iscod.pmt.models.TaskPriority;
+import com.iscod.pmt.models.TaskStatus;
 import com.iscod.pmt.services.TaskService;
 
 @RestController
@@ -40,6 +41,8 @@ public class TaskController {
 	    	String name = (String) taskData.get("name");
 	        LocalDate dueDate = LocalDate.parse((String) taskData.get("dueDate"));
 	        TaskPriority priority = TaskPriority.valueOf((String) taskData.get("priority"));
+	        TaskStatus status = TaskStatus.valueOf((String) taskData.get("status"));
+
 	        // champs optionnels
 	        String description = null;
 	        if(taskData.containsKey("description") && taskData.get("description") != null) {
@@ -50,7 +53,7 @@ public class TaskController {
 	            endDate = LocalDate.parse((String) taskData.get("endDate"));
 	        }
 	        
-	        Task task = taskService.addTask(projectId, name, description, dueDate, priority, endDate);
+	        Task task = taskService.addTask(projectId, name, description, dueDate, priority, endDate, status);
 
 	        if(taskData.containsKey("assigneeIds")) {
 	            List<String> assigneeIds = ((List<?>) taskData.get("assigneeIds"))

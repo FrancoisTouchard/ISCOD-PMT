@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.iscod.pmt.models.Task;
 import com.iscod.pmt.models.TaskPriority;
+import com.iscod.pmt.models.TaskStatus;
 
 public interface TaskService {
 	
@@ -14,7 +15,7 @@ public interface TaskService {
 
 	List<Task> findTasksByProjectId(UUID projectId);
 
-	Task addTask(UUID projectId, String name, String description, LocalDate dueDate, TaskPriority priority, LocalDate endDate);
+	Task addTask(UUID projectId, String name, String description, LocalDate dueDate, TaskPriority priority, LocalDate endDate, TaskStatus status);
 
 	void deleteTaskById(UUID taskId);
 	
