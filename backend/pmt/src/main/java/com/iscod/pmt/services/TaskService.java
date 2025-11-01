@@ -2,6 +2,7 @@ package com.iscod.pmt.services;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.iscod.pmt.models.Task;
@@ -18,5 +19,7 @@ public interface TaskService {
 	void deleteTaskById(UUID taskId);
 	
 	void assignTaskToUser(UUID taskId, UUID userId, UUID projectId);
+
+	public Task partialUpdate(UUID taskId, UUID projectId, Map<String, Object> updates);
 
 }

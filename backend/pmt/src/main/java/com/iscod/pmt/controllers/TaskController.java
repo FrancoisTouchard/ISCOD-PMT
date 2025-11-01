@@ -63,13 +63,19 @@ public class TaskController {
 	            }
 	        }
 
-	        
-	        
-	        
-	    	
 	    	return task;
 	}
-	    
+	
+	@PatchMapping("/project/{projectId}/{taskId}")
+	@ResponseStatus(code = HttpStatus.OK)
+	public Task partialUpdate(
+	    @PathVariable UUID projectId,
+	    @PathVariable UUID taskId, 
+	    @RequestBody Map<String, Object> updates
+	) {
+	    return taskService.partialUpdate(taskId, projectId, updates);
+	}
+	   
 	@DeleteMapping("/{taskId}")
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable UUID taskId) {

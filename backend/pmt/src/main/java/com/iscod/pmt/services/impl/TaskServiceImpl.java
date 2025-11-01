@@ -3,6 +3,7 @@ package com.iscod.pmt.services.impl;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import com.iscod.pmt.models.Project;
 import com.iscod.pmt.models.Task;
 import com.iscod.pmt.models.TaskAssignment;
 import com.iscod.pmt.models.TaskPriority;
+import com.iscod.pmt.models.TaskStatus;
 import com.iscod.pmt.repositories.ContributorRepository;
 import com.iscod.pmt.repositories.ProjectRepository;
 import com.iscod.pmt.repositories.TaskRepository;
@@ -82,5 +84,79 @@ public class TaskServiceImpl implements TaskService {
 	    taskRepository.save(task);
 	}
 
+	@Override
+	public Task partialUpdate(UUID taskId, UUID projectId, Map<String, Object> updates) {
+	    Task taskToUpdate = taskRepository.findById(taskId)
+	        .orElseThrow(() -> new ResourceNotFoundException("Tâche introuvable"));
+	    
+	    for(String key : updates.keySet()) {
+	        Object value = updates.get(key);
+	        switch(key) {
+	            case "name": {
+	                taskToUpdate.setName((String) value);
+	                break;
+	            }
+	            case "description": {
+	                taskToUpdate.setDescription((String) value);
+	                break;
+	            }
+	            case "dueDate": {
+	                if (value instanceof String) {
+	                    taskToUpdate.setDueDate(LocalDate.parse((String) value));
+	                } else {
+	                    taskToUpdate.setDueDate((LocalDate) value);
+	                }
+	                break;
+	            }
+	            case "endDate": {
+	                if (value == null) {
+	                    taskToUpdate.setEndDate(null);
+	                } else if (value instanceof String) {
+	                    taskToUpdate.setEndDate(LocalDate.parse((String) value));
+	                } else {
+	                    taskToUpdate.setEndDate((LocalDate) value);
+	                }
+	                break;
+	            }
+	            case "priority": {
+	                if (value instanceof String) {
+	                    taskToUpdate.setPriority(TaskPriority.valueOf((String) value));
+	                } else {
+	                    taskToUpdate.setPriority((TaskPriority) value);
+	                }
+	                break;
+	            }
+	            case "status": {
+	                if (value instanceof String) {
+	                    taskToUpdate.setStatus(TaskStatus.valueOf((String) value));
+	                } else {
+	                    taskToUpdate.setStatus((TaskStatus) value);
+	                }
+	                break;
+	            }
+	            case "assigneeIds": {
+	                taskToUpdate.getAssignments().clear();
+	                
+	                List<String> assigneeIds = ((List<?>) value)
+	                    .stream()
+	                    .map(Object::toString)
+	                    .toList();
+	                                
+	                for(String idStr : assigneeIds) {
+	                    UUID userId = UUID.fromString(idStr);
+	                    AppUser user = contributorRepository.findById(new ContributorId(userId, projectId))
+	                        .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable: " + userId))
+	                        .getUser();
+	                    
+	                    TaskAssignment assignment = new TaskAssignment(taskToUpdate, user, taskToUpdate.getProject());
+	                    taskToUpdate.getAssignments().add(assignment);
+	                }
+	                break;
+	            }
+	        }
+	    }
+	    
+	    return taskRepository.save(taskToUpdate);
+	}
 
 }
