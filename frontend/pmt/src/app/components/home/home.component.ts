@@ -73,6 +73,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.projectCreationForm.get('projectData.startDate') as FormControl;
   }
 
+  getUserRoleLabel(project: Project): string {
+    const contributor = project.contributors.find(
+      (c) => c.id.idUser === this.userId
+    );
+    return contributor ? getRoleLabel(contributor.role).label : '';
+  }
+
   loadProjects(): void {
     this.loading = true;
     this.projectService

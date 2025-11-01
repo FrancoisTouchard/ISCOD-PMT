@@ -97,7 +97,7 @@
           <td>{{ project.startDate | date : "dd/MM/yyyy" }}</td>
           <td>
             <span>
-              {{ getRoleLabel(project.contributors[0].role).label || "" }}
+              {{ getUserRoleLabel(project) }}
             </span>
           </td>
           <td>
