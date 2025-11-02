@@ -44,6 +44,10 @@ public class Task {
     @JsonManagedReference("task-assignments")
     private Set<TaskAssignment> assignments = new HashSet<>();
     
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("task-history")
+    private Set<HistoryEntry> historyEntries = new HashSet<>();
+    
     public Task() {}
     
     public Task(Project project, String name, String description, LocalDate dueDate, TaskPriority priority) {

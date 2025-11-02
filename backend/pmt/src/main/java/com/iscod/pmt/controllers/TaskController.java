@@ -74,9 +74,10 @@ public class TaskController {
 	public Task partialUpdate(
 	    @PathVariable UUID projectId,
 	    @PathVariable UUID taskId, 
+	    @RequestParam  UUID currentUserId,
 	    @RequestBody Map<String, Object> updates
 	) {
-	    return taskService.partialUpdate(taskId, projectId, updates);
+	    return taskService.partialUpdate(taskId, projectId, currentUserId, updates);
 	}
 	   
 	@DeleteMapping("/{taskId}")

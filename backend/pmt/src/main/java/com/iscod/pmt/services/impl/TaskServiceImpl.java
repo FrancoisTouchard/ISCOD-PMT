@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,12 +13,14 @@ import org.springframework.stereotype.Service;
 import com.iscod.pmt.exceptions.ResourceNotFoundException;
 import com.iscod.pmt.models.AppUser;
 import com.iscod.pmt.models.ContributorId;
+import com.iscod.pmt.models.HistoryEntry;
 import com.iscod.pmt.models.Project;
 import com.iscod.pmt.models.Task;
 import com.iscod.pmt.models.TaskAssignment;
 import com.iscod.pmt.models.TaskPriority;
 import com.iscod.pmt.models.TaskStatus;
 import com.iscod.pmt.repositories.ContributorRepository;
+import com.iscod.pmt.repositories.HistoryEntryRepository;
 import com.iscod.pmt.repositories.ProjectRepository;
 import com.iscod.pmt.repositories.TaskRepository;
 import com.iscod.pmt.services.TaskService;
@@ -34,6 +37,9 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private ContributorRepository contributorRepository;
     
+    @Autowired
+    private HistoryEntryRepository historyEntryRepository;
+
 	@Override
 	public List<Task> findAll() {
 		List<Task> liste = new ArrayList<Task>();
@@ -85,53 +91,64 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Override
-	public Task partialUpdate(UUID taskId, UUID projectId, Map<String, Object> updates) {
+	public Task partialUpdate(UUID taskId, UUID projectId, UUID currentUserId, Map<String, Object> updates) {
 	    Task taskToUpdate = taskRepository.findById(taskId)
 	        .orElseThrow(() -> new ResourceNotFoundException("Tâche introuvable"));
 	    
+	    // Récupérer l'auteur de la modification pour l'entrée d'historique
+	    AppUser currentUser = contributorRepository.findById(new ContributorId(currentUserId, projectId))
+		        .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"))
+		        .getUser();
+	    
 	    for(String key : updates.keySet()) {
 	        Object value = updates.get(key);
+	        
+	        // récupérer l'ancienne valeur du champ pour l'entrée d'historique
+	        String oldValue = getFieldValue(taskToUpdate, key);
+	        String newValueStr = convertValueToString(key, value);
+	        
+	        // ne rien faire si la valeur ne change pas
+	        if (oldValue.equals(newValueStr)) {
+	            continue;
+	        }
+	        
 	        switch(key) {
 	            case "name": {
 	                taskToUpdate.setName((String) value);
+	                createHistoryEntry(taskToUpdate, currentUser, key, oldValue, (String) value);
 	                break;
 	            }
 	            case "description": {
 	                taskToUpdate.setDescription((String) value);
+	                createHistoryEntry(taskToUpdate, currentUser, key, oldValue, (String) value);
 	                break;
 	            }
 	            case "dueDate": {
-	                if (value instanceof String) {
-	                    taskToUpdate.setDueDate(LocalDate.parse((String) value));
-	                } else {
-	                    taskToUpdate.setDueDate((LocalDate) value);
-	                }
+	                LocalDate newDate = value instanceof String ? LocalDate.parse((String) value) : (LocalDate) value;
+	                taskToUpdate.setDueDate(newDate);
+	                createHistoryEntry(taskToUpdate, currentUser, key, oldValue, newDate.toString());
 	                break;
 	            }
 	            case "endDate": {
-	                if (value == null) {
-	                    taskToUpdate.setEndDate(null);
-	                } else if (value instanceof String) {
-	                    taskToUpdate.setEndDate(LocalDate.parse((String) value));
-	                } else {
-	                    taskToUpdate.setEndDate((LocalDate) value);
-	                }
+	                LocalDate newDate = value == null ? null : 
+	                    (value instanceof String ? LocalDate.parse((String) value) : (LocalDate) value);
+	                taskToUpdate.setEndDate(newDate);
+	                createHistoryEntry(taskToUpdate, currentUser, key, oldValue, 
+	                    newDate != null ? newDate.toString() : "");
 	                break;
 	            }
 	            case "priority": {
-	                if (value instanceof String) {
-	                    taskToUpdate.setPriority(TaskPriority.valueOf((String) value));
-	                } else {
-	                    taskToUpdate.setPriority((TaskPriority) value);
-	                }
+	                TaskPriority newPriority = value instanceof String ? 
+	                    TaskPriority.valueOf((String) value) : (TaskPriority) value;
+	                taskToUpdate.setPriority(newPriority);
+	                createHistoryEntry(taskToUpdate, currentUser, key, oldValue, newPriority.toString());
 	                break;
 	            }
 	            case "status": {
-	                if (value instanceof String) {
-	                    taskToUpdate.setStatus(TaskStatus.valueOf((String) value));
-	                } else {
-	                    taskToUpdate.setStatus((TaskStatus) value);
-	                }
+	                TaskStatus newStatus = value instanceof String ? 
+	                    TaskStatus.valueOf((String) value) : (TaskStatus) value;
+	                taskToUpdate.setStatus(newStatus);
+	                createHistoryEntry(taskToUpdate, currentUser, key, oldValue, newStatus.toString());
 	                break;
 	            }
 	            case "assigneeIds": {
@@ -151,6 +168,8 @@ public class TaskServiceImpl implements TaskService {
 	                    TaskAssignment assignment = new TaskAssignment(taskToUpdate, user, taskToUpdate.getProject());
 	                    taskToUpdate.getAssignments().add(assignment);
 	                }
+	                String newAssignees = assigneeIds.isEmpty() ? "(aucun)" : String.join(", ", assigneeIds);
+	                createHistoryEntry(taskToUpdate, currentUser, key, oldValue, newAssignees);
 	                break;
 	            }
 	        }
@@ -158,5 +177,58 @@ public class TaskServiceImpl implements TaskService {
 	    
 	    return taskRepository.save(taskToUpdate);
 	}
-
+	
+	private String getFieldValue(Task task, String fieldName) {
+	    return switch(fieldName) {
+	        case "name" -> task.getName();
+	        case "description" -> task.getDescription() != null ? task.getDescription() : "";
+	        case "dueDate" -> task.getDueDate() != null ? task.getDueDate().toString() : "";
+	        case "endDate" -> task.getEndDate() != null ? task.getEndDate().toString() : "";
+	        case "priority" -> task.getPriority() != null ? task.getPriority().toString() : "";
+	        case "status" -> task.getStatus() != null ? task.getStatus().toString() : "";
+	        case "assigneeIds" -> task.getAssignments().isEmpty() ? "(aucun)" : 
+	            task.getAssignments().stream()
+	                .map(a -> a.getUser().getId().toString())
+	                .reduce((a, b) -> a + ", " + b)
+	                .orElse("(aucun)");
+	        default -> "";
+	    };
+	}
+	
+	private void createHistoryEntry(Task task, AppUser user, String fieldName, String oldValue, String newValue) {
+		// Ne créer l'entrée que si la valeur a réellement changé
+		if (!oldValue.equals(newValue)) {
+			HistoryEntry entry = new HistoryEntry(
+					task.getProject(),
+					task,
+					user,
+					fieldName,
+					oldValue,
+					newValue
+					);
+			historyEntryRepository.save(entry);
+		}
+	}	
+	
+	private String convertValueToString(String fieldName, Object value) {
+	    if (value == null) {
+	        return "";
+	    }
+	    
+	    return switch(fieldName) {
+	        case "name", "description" -> (String) value;
+	        case "dueDate", "endDate" -> value instanceof String ? (String) value : value.toString();
+	        case "priority", "status" -> value instanceof String ? (String) value : value.toString();
+	        case "assigneeIds" -> {
+	            List<String> assigneeIds = ((List<?>) value)
+	                .stream()
+	                .map(Object::toString)
+	                .toList();
+	            yield assigneeIds.isEmpty() ? "(aucun)" : String.join(", ", assigneeIds);
+	        }
+	        default -> value.toString();
+	    };
+	}
+	
+	
 }

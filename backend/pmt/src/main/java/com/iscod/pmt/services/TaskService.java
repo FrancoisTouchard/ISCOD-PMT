@@ -21,6 +21,6 @@ public interface TaskService {
 	
 	void assignTaskToUser(UUID taskId, UUID userId, UUID projectId);
 
-	public Task partialUpdate(UUID taskId, UUID projectId, Map<String, Object> updates);
+	public Task partialUpdate(UUID taskId, UUID projectId, UUID currentUserId, Map<String, Object> updates);
 
 }
