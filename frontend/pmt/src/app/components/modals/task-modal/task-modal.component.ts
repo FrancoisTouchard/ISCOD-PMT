@@ -14,11 +14,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { Priority } from '../../models/priority.enum';
-import { Project } from '../../models/project.model';
-import { LocalTask, Task } from '../../models/task.model';
-import { TaskStatus } from '../../models/taskStatus.enum';
-import { getPriorityLabel, getStatusLabel } from '../../utils/labels';
+import { getPriorityLabel, getStatusLabel } from '../../../utils/labels';
+import { Priority } from '../../../models/priority.enum';
+import { Project } from '../../../models/project.model';
+import { LocalTask, Task } from '../../../models/task.model';
+import { TaskStatus } from '../../../models/taskStatus.enum';
 
 @Component({
   selector: 'app-task-modal',

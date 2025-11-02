@@ -3,14 +3,17 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Priority } from '../../models/priority.enum';
 import { Project } from '../../models/project.model';
 import { LocalTask, Task } from '../../models/task.model';
-import { TaskModalComponent } from '../task-modal/task-modal.component';
+import { TaskModalComponent } from '../modals/task-modal/task-modal.component';
 import { TaskStatus } from '../../models/taskStatus.enum';
 import { getPriorityLabel, getStatusLabel } from '../../utils/labels';
+import { HistoryModalComponent } from '../modals/history-modal/history-modal.component';
+import { HistoryService } from '../../services/history.service';
+import { HistoryEntry } from '../../models/historyEntry.model';
 
 @Component({
   selector: 'app-project-tasks',
   standalone: true,
-  imports: [CommonModule, TaskModalComponent, NgStyle],
+  imports: [CommonModule, HistoryModalComponent, TaskModalComponent, NgStyle],
   templateUrl: './project-tasks.component.html',
   styleUrl: './project-tasks.component.scss',
 })
@@ -28,12 +31,18 @@ export class ProjectTasksComponent {
   @Output() formClosed = new EventEmitter<void>();
 
   selectedTask: Task | null = null;
+  selectedTaskHistory: HistoryEntry[] = [];
   modalMode: 'create' | 'view' | 'edit' = 'view';
+  isHistoryModalOpen = false;
   isModalOpen = false;
+  loadingHistory = false;
   Priority = Priority;
   TaskStatus = TaskStatus;
+  userId: string = '';
   getPriorityLabel = getPriorityLabel;
   getStatusLabel = getStatusLabel;
+
+  constructor(private historyService: HistoryService) {}
 
   openModal(): void {
     this.selectedTask = null;
@@ -45,6 +54,32 @@ export class ProjectTasksComponent {
     this.isModalOpen = false;
     this.selectedTask = null;
     this.formClosed.emit();
+  }
+
+  openHistoryModal(task: Task): void {
+    this.selectedTask = task;
+    this.loadingHistory = true;
+    this.isHistoryModalOpen = true;
+
+    // Charger l'historique de la tâche sélectionnée
+    this.historyService.getHistoryEntriesByTaskId(task.id).subscribe({
+      next: (entries) => {
+        this.selectedTaskHistory = entries;
+        this.loadingHistory = false;
+        console.log('entries histooo', entries);
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement de l'historique:", err);
+        this.loadingHistory = false;
+        this.selectedTaskHistory = [];
+      },
+    });
+  }
+
+  closeHistoryModal(): void {
+    this.isHistoryModalOpen = false;
+    this.selectedTask = null;
+    this.selectedTaskHistory = [];
   }
 
   viewTask(task: Task): void {

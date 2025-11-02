@@ -50,3 +50,16 @@ export function getStatusLabel(status: TaskStatus): {
       return { label: status, color: '#6c757d' };
   }
 }
+
+export function getTaskFieldLabel(fieldName: string): string {
+  const labels: { [key: string]: string } = {
+    name: 'Nom',
+    description: 'Description',
+    dueDate: "Date d'échéance",
+    endDate: 'Date de fin',
+    priority: 'Priorité',
+    status: 'Statut',
+    assigneeIds: 'Assignation',
+  };
+  return labels[fieldName] || fieldName;
+}

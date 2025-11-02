@@ -1,0 +1,70 @@
+<div *ngIf="isOpen" class="modal-overlay" (click)="close()">
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Historique de modifications
+          <span *ngIf="taskName" class="text-muted"> - {{ taskName }}</span>
+        </h5>
+        <button type="button" class="btn-close" (click)="close()"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- État de chargement -->
+        <div *ngIf="loading" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <p class="mt-2">Chargement de l'historique...</p>
+        </div>
+
+        <!-- Aucune entrée -->
+        <div
+          *ngIf="!loading && historyEntries.length === 0"
+          class="alert alert-info"
+        >
+          <i class="bi bi-info-circle me-2"></i>
+          Aucune modification n'a été enregistrée pour cette tâche.
+        </div>
+
+        <!-- Liste des modifications -->
+        <div *ngIf="!loading && historyEntries.length > 0" class="history-list">
+          <div *ngFor="let entry of historyEntries" class="history-entry">
+            <div class="entry-header">
+              <div class="entry-info">
+                <span class="field-label">Modifié par:</span>
+                <span class="user-name">{{ entry.userName }}</span>
+                <span class="field-label">Date de modification :</span>
+
+                <span class="entry-date">{{
+                  formatDate(entry.modifiedAt)
+                }}</span>
+              </div>
+            </div>
+
+            <div class="entry-content">
+              <div class="field-change">
+                <span class="field-label">{{
+                  getTaskFieldLabel(entry.modifiedFieldName)
+                }}</span>
+                <div class="change-values">
+                  <span class="old-value">{{
+                    entry.oldFieldValue || "(vide)"
+                  }}</span>
+                  <span class="arrow">→</span>
+                  <span class="new-value">{{
+                    entry.newFieldValue || "(vide)"
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="close()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

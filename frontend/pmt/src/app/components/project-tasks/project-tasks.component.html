@@ -43,9 +43,12 @@
               Voir
             </button>
             <button
-              class="btn btn-sm btn-danger ms-2"
-              (click)="onTaskDeleted(task)"
+              class="btn btn-sm btn-secondary ms-2 me-2"
+              (click)="openHistoryModal(task)"
             >
+              Historique
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="onTaskDeleted(task)">
               Supprimer
             </button>
           </td>
@@ -62,4 +65,12 @@
     (closed)="closeModal()"
     (saved)="onTaskSaved($event)"
   ></app-task-modal>
+
+  <app-history-modal
+    [isOpen]="isHistoryModalOpen"
+    [taskName]="selectedTask?.name"
+    [historyEntries]="selectedTaskHistory"
+    [loading]="loadingHistory"
+    (closed)="closeHistoryModal()"
+  ></app-history-modal>
 </div>

@@ -6,6 +6,7 @@ import { LocalProject, Project } from '../models/project.model';
 import { Role } from '../models/role.enum';
 import { Contributor } from '../models/contributor.model';
 import { LocalTask, Task } from '../models/task.model';
+import { HistoryEntry } from '../models/historyEntry.model';
 
 const API_URL = 'http://localhost:8080/';
 
@@ -104,6 +105,7 @@ export class ApiService {
 
   patchTask(
     projectId: string,
+    userId: string,
     taskId: string,
     updatedTask: LocalTask
   ): Observable<Task> {
@@ -118,12 +120,26 @@ export class ApiService {
     };
 
     return this.httpClient.patch<Task>(
-      `${API_URL}tasks/project/${projectId}/${taskId}`,
+      `${API_URL}tasks/project/${projectId}/${taskId}?currentUserId=${userId}`,
       payload
     );
   }
 
   deleteTaskById(taskId: string) {
     return this.httpClient.delete<Task[]>(`${API_URL}tasks/${taskId}`);
+  }
+
+  // méthodes historique
+
+  getTasksModificationsByProjectId(projectId: string) {
+    return this.httpClient.get<HistoryEntry[]>(
+      `${API_URL}history/project/${projectId}`
+    );
+  }
+
+  getTasksModificationsByTaskId(taskId: string) {
+    return this.httpClient.get<HistoryEntry[]>(
+      `${API_URL}history/task/${taskId}`
+    );
   }
 }

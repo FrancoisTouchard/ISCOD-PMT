@@ -35,9 +35,9 @@ interface ContributorAddData {
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     ProjectTasksComponent,
     ProjectMembersComponent,
-    ReactiveFormsModule,
   ],
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.scss'],
@@ -56,6 +56,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   Role = Role;
   showTaskForm = false;
   showMemberForm = false;
+  userId: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -193,8 +194,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   onTaskUpdated(event: { taskId: string; updatedTask: LocalTask }) {
+    // récupérer le user id pour préciser l'auteur de la modification dans l'historique
+    this.userId = localStorage.getItem('userId') || '';
     this.taskService
-      .updateTask(this.projectId, event.taskId, event.updatedTask)
+      .updateTask(this.projectId, this.userId, event.taskId, event.updatedTask)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedTask) => {
