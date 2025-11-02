@@ -42,6 +42,12 @@
             <button class="btn btn-sm btn-primary" (click)="viewTask(task)">
               Voir
             </button>
+            <button
+              class="btn btn-sm btn-danger ms-2"
+              (click)="onTaskDeleted(task)"
+            >
+              Supprimer
+            </button>
           </td>
         </tr>
       </tbody>

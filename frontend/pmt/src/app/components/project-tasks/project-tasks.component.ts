@@ -24,6 +24,7 @@ export class ProjectTasksComponent {
     taskId: string;
     updatedTask: LocalTask;
   }>();
+  @Output() taskDeleted = new EventEmitter<string>();
   @Output() formClosed = new EventEmitter<void>();
 
   selectedTask: Task | null = null;
@@ -34,15 +35,9 @@ export class ProjectTasksComponent {
   getPriorityLabel = getPriorityLabel;
   getStatusLabel = getStatusLabel;
 
-  openCreateModal(): void {
+  openModal(): void {
     this.selectedTask = null;
     this.modalMode = 'create';
-    this.isModalOpen = true;
-  }
-
-  viewTask(task: Task): void {
-    this.selectedTask = task;
-    this.modalMode = 'view';
     this.isModalOpen = true;
   }
 
@@ -50,6 +45,12 @@ export class ProjectTasksComponent {
     this.isModalOpen = false;
     this.selectedTask = null;
     this.formClosed.emit();
+  }
+
+  viewTask(task: Task): void {
+    this.selectedTask = task;
+    this.modalMode = 'view';
+    this.isModalOpen = true;
   }
 
   onTaskSaved(formData: LocalTask): void {
@@ -62,6 +63,13 @@ export class ProjectTasksComponent {
       });
     }
     this.closeModal();
+  }
+
+  onTaskDeleted(task: Task): void {
+    if (!confirm(`Voulez-vous vraiment supprimer la tâche "${task.name}" ?`)) {
+      return;
+    }
+    this.taskDeleted.emit(task.id);
   }
 
   getAssigneesNames(task: Task): string {

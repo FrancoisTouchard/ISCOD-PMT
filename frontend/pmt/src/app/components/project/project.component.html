@@ -138,13 +138,14 @@
       aria-labelledby="tasks-tab"
     >
       <app-project-tasks
-        #tasksComp
+        #tasksComponent
         *ngIf="activeTab === 'tasks'"
         [project]="project"
         [tasks]="tasks"
         [showAddForm]="showTaskForm"
         (taskAdded)="onTaskAdded($event)"
         (taskUpdated)="onTaskUpdated($event)"
+        (taskDeleted)="onTaskDeleted($event)"
         (formClosed)="showTaskForm = false"
       ></app-project-tasks>
     </div>

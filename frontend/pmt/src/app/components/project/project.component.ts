@@ -43,7 +43,7 @@ interface ContributorAddData {
   styleUrls: ['./project.component.scss'],
 })
 export class ProjectComponent implements OnInit, OnDestroy {
-  @ViewChild('tasksComp') tasksComp?: ProjectTasksComponent;
+  @ViewChild('tasksComponent') tasksComponent?: ProjectTasksComponent;
 
   addContributorForm: FormGroup;
   isContributorSubmitted = false;
@@ -101,17 +101,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
     return this.taskService.tasks;
   }
 
-  hideAddContributorBlock() {
-    this.addContributorForm.reset({
-      contributorData: {
-        email: null,
-        role: Role.OBSERVATEUR,
-      },
-    });
-    this.isContributorSubmitted = false;
-    this.showMemberForm = false;
-  }
-
   goToHomePage() {
     this.router.navigate(['/home']);
   }
@@ -124,6 +113,21 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
   }
 
+  hideAddContributorBlock() {
+    this.addContributorForm.reset({
+      contributorData: {
+        email: null,
+        role: Role.OBSERVATEUR,
+      },
+    });
+    this.isContributorSubmitted = false;
+    this.showMemberForm = false;
+  }
+
+  showAddContributorBlock() {
+    this.showMemberForm = true;
+  }
+
   showAddTaskBlock() {
     this.showTaskForm = true;
   }
@@ -131,12 +135,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   openTaskModalFromParent(): void {
     this.activeTab = 'tasks';
     setTimeout(() => {
-      this.tasksComp?.openCreateModal();
+      this.tasksComponent?.openModal();
     });
-  }
-
-  showAddContributorBlock() {
-    this.showMemberForm = true;
   }
 
   loadProject(): void {
@@ -209,6 +209,28 @@ export class ProjectComponent implements OnInit, OnDestroy {
           this.errorHandlerService.handleError(
             err,
             'Erreur lors de la mise à jour de la tâche'
+          );
+        },
+      });
+  }
+
+  onTaskDeleted(taskId: string): void {
+    this.taskService
+      .deleteTaskById(taskId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadProject();
+          this.toastService.showToast(
+            `Tâche supprimée avec succès !`,
+            'success'
+          );
+        },
+        error: (err) => {
+          console.error('Erreur lors de la suppression de la tâche:', err);
+          this.toastService.showToast(
+            'Erreur lors de la suppression de la tâche',
+            'error'
           );
         },
       });
