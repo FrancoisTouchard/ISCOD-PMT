@@ -1,34 +1,51 @@
 <div>
   <div class="table-responsive mt-3">
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover align-middle">
       <thead class="table-dark">
         <tr>
-          <th>Nom</th>
-          <th>Email</th>
-          <th>Rôle</th>
-          <th>Actions</th>
+          <th style="width: 15%">Nom</th>
+          <th style="width: 20%">Email</th>
+          <th style="width: 20%" class="text-center">Rôle</th>
+          <th style="width: 20%" class="text-center">Actions</th>
         </tr>
       </thead>
+
       <tbody>
         <tr *ngFor="let contributor of project?.contributors">
-          <td>{{ contributor?.userName }}</td>
-          <td>{{ contributor?.userEmail }}</td>
-          <td>
-            <div class="d-flex align-items-center gap-2">
+          <td
+            class="text-truncate fw-semibold"
+            style="max-width: 150px"
+            [title]="contributor?.userName"
+          >
+            {{ contributor?.userName }}
+          </td>
+
+          <td
+            class="text-truncate"
+            style="max-width: 200px"
+            [title]="contributor?.userEmail"
+          >
+            {{ contributor?.userEmail }}
+          </td>
+
+          <td class="text-center">
+            <div class="d-inline-flex align-items-center gap-2">
               <span
                 class="badge"
                 [ngStyle]="{
                   'background-color': getRoleLabel(contributor.role).color
                 }"
-                >{{ getRoleLabel(contributor.role).label }}</span
               >
-              <!-- Dropdown modification rôle -->
+                {{ getRoleLabel(contributor.role).label }}
+              </span>
+
+              <!-- Dropdown modification du rôle -->
               <div ngbDropdown class="d-inline-block position-static">
                 <button
                   class="btn btn-sm btn-secondary px-2 py-0"
                   ngbDropdownToggle
-                  id="contributorRole"
                   style="font-size: 0.75rem"
+                  title="Modifier le rôle"
                 >
                   Modifier
                 </button>
@@ -46,13 +63,17 @@
               </div>
             </div>
           </td>
-          <td>
-            <button
-              class="btn btn-sm btn-danger"
-              (click)="onDeleteContributor(contributor)"
-            >
-              Retirer
-            </button>
+
+          <td class="text-center">
+            <div class="btn-group btn-group-sm" role="group">
+              <button
+                class="btn btn-danger"
+                (click)="onDeleteContributor(contributor)"
+                title="Retirer le membre"
+              >
+                Retirer
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>

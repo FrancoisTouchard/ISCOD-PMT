@@ -1,0 +1,33 @@
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table {
+  td,
+  th {
+    vertical-align: middle;
+  }
+}
+
+.badge {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.table th,
+.table td {
+  padding: 0.6rem 0.75rem;
+}
+
+.btn-group-sm .btn {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.table {
+  width: 70%;
+  margin: 0 auto;
+}
