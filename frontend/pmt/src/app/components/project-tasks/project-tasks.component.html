@@ -1,56 +1,99 @@
 <div>
   <div class="table-responsive mt-3">
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover align-middle">
       <thead class="table-dark">
         <tr>
-          <th>Nom</th>
-          <th>Description</th>
-          <th>Statut</th>
-          <th>Priorité</th>
-          <th>Date d'échéance</th>
-          <th>Date de fin</th>
-          <th>Assigné à</th>
-          <th>Actions</th>
+          <th style="width: 15%">Nom</th>
+          <th style="width: 20%">Description</th>
+          <th style="width: 10%" class="text-center">Statut</th>
+          <th style="width: 10%" class="text-center">Priorité</th>
+          <th style="width: 10%" class="text-center">Échéance</th>
+          <th style="width: 10%" class="text-center">Date de fin</th>
+          <th style="width: 10%">Assigné à</th>
+          <th style="width: 15%" class="text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let task of tasks">
-          <td>{{ task.name }}</td>
-          <td>{{ task.description }}</td>
-          <td>
+          <td
+            class="text-truncate fw-semibold"
+            style="max-width: 150px"
+            [title]="task.name"
+          >
+            {{ task.name }}
+          </td>
+          <td
+            class="text-truncate"
+            style="max-width: 200px"
+            [title]="task.description || ''"
+          >
+            {{ task.description || "-" }}
+          </td>
+          <td class="text-center">
             <span
               class="badge"
               [ngStyle]="{
                 'background-color': getStatusLabel(task.status).color
               }"
-              >{{ getStatusLabel(task.status).label }}</span
             >
+              {{ getStatusLabel(task.status).label }}
+            </span>
           </td>
-          <td>
+          <td class="text-center">
             <span
               class="badge"
               [ngStyle]="{
                 'background-color': getPriorityLabel(task.priority).color
               }"
-              >{{ getPriorityLabel(task.priority).label }}</span
             >
+              {{ getPriorityLabel(task.priority).label }}
+            </span>
           </td>
-          <td>{{ task.dueDate }}</td>
-          <td>{{ task.endDate }}</td>
-          <td>{{ getAssigneesNames(task) }}</td>
-          <td>
-            <button class="btn btn-sm btn-primary" (click)="viewTask(task)">
-              Voir
-            </button>
-            <button
-              class="btn btn-sm btn-secondary ms-2 me-2"
-              (click)="openHistoryModal(task)"
+          <td class="text-center">
+            {{ task.dueDate | date : "dd/MM/yyyy" }}
+          </td>
+          <td class="text-center">
+            {{ task.endDate ? (task.endDate | date : "dd/MM/yyyy") : "-" }}
+          </td>
+          <td
+            class="text-truncate"
+            style="max-width: 120px"
+            [title]="getAssigneesNames(task)"
+          >
+            <span
+              class="text-muted fst-italic"
+              *ngIf="!getAssigneesNames(task)"
             >
-              Historique
-            </button>
-            <button class="btn btn-sm btn-danger" (click)="onTaskDeleted(task)">
-              Supprimer
-            </button>
+              Non assigné
+            </span>
+            <span *ngIf="getAssigneesNames(task)">
+              {{ getAssigneesNames(task) }}
+            </span>
+          </td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm" role="group">
+              <button
+                class="btn btn-primary"
+                (click)="viewTask(task)"
+                title="Voir les détails"
+              >
+                Voir
+              </button>
+              <button
+                class="btn btn-secondary ms-2 me-2"
+                (click)="openHistoryModal(task)"
+                title="Voir l'historique"
+              >
+                Historique
+              </button>
+              <button
+                class="btn btn-danger"
+                (click)="onTaskDeleted(task)"
+                title="Supprimer la tâche"
+              >
+                Supprimer
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
