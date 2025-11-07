@@ -7,7 +7,9 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iscod.pmt.models.AppUser;
 import com.iscod.pmt.models.HistoryEntry;
+import com.iscod.pmt.models.Task;
 import com.iscod.pmt.repositories.HistoryEntryRepository;
 import com.iscod.pmt.services.HistoryEntryService;
 
@@ -40,5 +42,21 @@ public class HistoryEntryServiceImpl implements HistoryEntryService {
 		
 		return liste;
 	}
+
+	@Override
+	public void createHistoryEntry(Task task, AppUser user, String fieldName, String oldValue, String newValue) {
+		// Ne créer l'entrée que si la valeur a changé
+		if (!oldValue.equals(newValue)) {
+			HistoryEntry entry = new HistoryEntry(
+					task.getProject(),
+					task,
+					user,
+					fieldName,
+					oldValue,
+					newValue
+					);
+			historyEntryRepository.save(entry);
+		}
+	}	
 
 }

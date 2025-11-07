@@ -12,5 +12,5 @@ public interface HistoryEntryRepository extends CrudRepository<HistoryEntry, UUI
 	List<HistoryEntry> findByProjectIdOrderByModifiedAtDesc(UUID projectId);
 	
 	List<HistoryEntry> findByTaskIdOrderByModifiedAtDesc(UUID taskId);
-
+	
 }
