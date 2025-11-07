@@ -174,6 +174,7 @@ export class TaskModalComponent implements OnChanges {
   }
 
   close(): void {
+    this.mode = 'view';
     this.closed.emit();
   }
 }
