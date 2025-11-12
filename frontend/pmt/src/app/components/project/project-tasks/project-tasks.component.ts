@@ -9,11 +9,18 @@ import { getPriorityLabel, getStatusLabel } from '../../../utils/labels';
 import { HistoryModalComponent } from '../../modals/history-modal/history-modal.component';
 import { HistoryService } from '../../../services/history.service';
 import { HistoryEntry } from '../../../models/historyEntry.model';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-project-tasks',
   standalone: true,
-  imports: [CommonModule, HistoryModalComponent, TaskModalComponent, NgStyle],
+  imports: [
+    CommonModule,
+    NgbDropdownModule,
+    HistoryModalComponent,
+    TaskModalComponent,
+    NgStyle,
+  ],
   templateUrl: './project-tasks.component.html',
   styleUrl: './project-tasks.component.scss',
 })
@@ -37,6 +44,8 @@ export class ProjectTasksComponent {
   isModalOpen = false;
   loadingHistory = false;
   Priority = Priority;
+  selectedStatus: TaskStatus | 'ALL' = 'ALL';
+  statusList = Object.values(TaskStatus);
   TaskStatus = TaskStatus;
   userId: string = '';
   getPriorityLabel = getPriorityLabel;
@@ -117,5 +126,14 @@ export class ProjectTasksComponent {
       return contributor ? contributor.userName : 'Utilisateur inconnu';
     });
     return names.join(', ');
+  }
+
+  get filteredTasks() {
+    if (this.selectedStatus === 'ALL') return this.tasks;
+    return this.tasks.filter((task) => task.status === this.selectedStatus);
+  }
+
+  setStatusFilter(status: TaskStatus | 'ALL') {
+    this.selectedStatus = status;
   }
 }
