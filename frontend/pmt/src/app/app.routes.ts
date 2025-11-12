@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
-import { LoginComponent } from './components/login/login.component';
-import { SigninComponent } from './components/signin/signin.component';
+import { LoginComponent } from './components/auth/login/login.component';
+import { SigninComponent } from './components/auth/signin/signin.component';
 import { LandingComponent } from './components/landing/landing.component';
 import { authGuard } from './guards/auth.guard';
 import { ProjectComponent } from './components/project/project.component';
