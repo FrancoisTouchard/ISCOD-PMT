@@ -174,6 +174,15 @@ export class TaskModalComponent implements OnChanges {
   }
 
   close(): void {
+    this.taskForm.reset({
+      name: null,
+      description: null,
+      dueDate: null,
+      endDate: null,
+      priority: Priority.MEDIUM,
+      status: TaskStatus.TODO,
+      assigneeIds: [],
+    });
     this.mode = 'view';
     this.closed.emit();
   }
