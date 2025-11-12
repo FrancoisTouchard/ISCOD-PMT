@@ -11,11 +11,11 @@ import { LocalTask } from '../../models/task.model';
 import { TaskService } from '../../services/task.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandlerService } from '../../services/errorHandler.service';
-import { ProjectTasksComponent } from '../project-tasks/project-tasks.component';
+import { ProjectTasksComponent } from './project-tasks/project-tasks.component';
 import {
   ProjectMembersComponent,
   ContributorRoleUpdateData,
-} from '../project-members/project-members.component';
+} from './project-members/project-members.component';
 import { getRoleLabel } from '../../utils/labels';
 import {
   FormControl,

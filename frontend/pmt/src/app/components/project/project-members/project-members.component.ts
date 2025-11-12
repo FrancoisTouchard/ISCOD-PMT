@@ -2,10 +2,10 @@ import { CommonModule, NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { Contributor } from '../../models/contributor.model';
-import { Project } from '../../models/project.model';
-import { Role } from '../../models/role.enum';
-import { getRoleLabel } from '../../utils/labels';
+import { Contributor } from '../../../models/contributor.model';
+import { Project } from '../../../models/project.model';
+import { Role } from '../../../models/role.enum';
+import { getRoleLabel } from '../../../utils/labels';
 
 export interface ContributorRoleUpdateData {
   contributorId: string;

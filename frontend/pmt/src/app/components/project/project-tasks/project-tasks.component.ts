@@ -1,14 +1,14 @@
 import { CommonModule, NgStyle } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Priority } from '../../models/priority.enum';
-import { Project } from '../../models/project.model';
-import { LocalTask, Task } from '../../models/task.model';
-import { TaskModalComponent } from '../modals/task-modal/task-modal.component';
-import { TaskStatus } from '../../models/taskStatus.enum';
-import { getPriorityLabel, getStatusLabel } from '../../utils/labels';
-import { HistoryModalComponent } from '../modals/history-modal/history-modal.component';
-import { HistoryService } from '../../services/history.service';
-import { HistoryEntry } from '../../models/historyEntry.model';
+import { Priority } from '../../../models/priority.enum';
+import { Project } from '../../../models/project.model';
+import { LocalTask, Task } from '../../../models/task.model';
+import { TaskModalComponent } from '../../modals/task-modal/task-modal.component';
+import { TaskStatus } from '../../../models/taskStatus.enum';
+import { getPriorityLabel, getStatusLabel } from '../../../utils/labels';
+import { HistoryModalComponent } from '../../modals/history-modal/history-modal.component';
+import { HistoryService } from '../../../services/history.service';
+import { HistoryEntry } from '../../../models/historyEntry.model';
 
 @Component({
   selector: 'app-project-tasks',
