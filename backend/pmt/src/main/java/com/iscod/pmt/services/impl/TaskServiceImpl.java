@@ -2,8 +2,10 @@ package com.iscod.pmt.services.impl;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import com.iscod.pmt.models.TaskStatus;
 import com.iscod.pmt.repositories.ContributorRepository;
 import com.iscod.pmt.repositories.ProjectRepository;
 import com.iscod.pmt.repositories.TaskRepository;
+import com.iscod.pmt.services.EmailService;
 import com.iscod.pmt.services.HistoryEntryService;
 import com.iscod.pmt.services.TaskService;
 import com.iscod.pmt.utils.FieldFormatterUtils;
@@ -39,6 +42,9 @@ public class TaskServiceImpl implements TaskService {
     
     @Autowired
     private HistoryEntryService historyEntryService;
+    
+    @Autowired
+    private EmailService emailService;
 
 	@Override
 	public List<Task> findAll() {
@@ -88,6 +94,9 @@ public class TaskServiceImpl implements TaskService {
 	    TaskAssignment assignment = new TaskAssignment(task, assignee, project);
 	    task.getAssignments().add(assignment);
 	    taskRepository.save(task);
+	    
+	 // Envoi de la notification par email
+	 emailService.sendTaskAssignmentNotification(task, assignee);
 	}
 
 	@Override
@@ -107,6 +116,11 @@ public class TaskServiceImpl implements TaskService {
 	        // récupérer l'ancienne valeur du champ pour l'entrée d'historique
 	        String oldValue = FieldFormatterUtils.getFieldValue(taskToUpdate, key);
 	        String newValueStr = FieldFormatterUtils.convertValueToString(key, value);
+	        
+	        // Garder une trace des anciennes assignations pour savoir qui notifier
+		    Set<UUID> oldAssigneeIds = new HashSet<>();
+		    taskToUpdate.getAssignments().forEach(a -> oldAssigneeIds.add(a.getUser().getId()));
+		    
 	        
 	        // ne rien faire si la valeur ne change pas
 	        if (oldValue.equals(newValueStr)) {
@@ -169,6 +183,11 @@ public class TaskServiceImpl implements TaskService {
 	                    
 	                    TaskAssignment assignment = new TaskAssignment(taskToUpdate, user, taskToUpdate.getProject());
 	                    taskToUpdate.getAssignments().add(assignment);
+	                    
+	                    // Envoi de la notification aux nouveaux assignés
+	                    if (!oldAssigneeIds.contains(userId)) {
+	                       emailService.sendTaskAssignmentNotification(taskToUpdate, user);
+	                    }
 	                }
 	                
 	                String newAssignees = assigneeIds.isEmpty() ? "(aucun)" : String.join(", ", assigneeIds);
