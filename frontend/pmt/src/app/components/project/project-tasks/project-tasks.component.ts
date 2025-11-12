@@ -53,6 +53,7 @@ export class ProjectTasksComponent {
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedTask = null;
+    this.modalMode = 'view';
     this.formClosed.emit();
   }
 

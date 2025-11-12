@@ -71,6 +71,11 @@ export class TaskModalComponent implements OnChanges {
     if (changes['mode']) {
       this.isEditMode = this.mode === 'edit' || this.mode === 'create';
     }
+
+    // Réinitialiser task pour être sûr d'ouvrir la modal en mode create
+    if (changes['task'] && this.mode === 'create' && this.task !== null) {
+      this.task = null;
+    }
   }
 
   get title(): string {
@@ -99,7 +104,6 @@ export class TaskModalComponent implements OnChanges {
         assigneeIds: [],
       });
       this.isEditMode = true;
-      // Si il y a une tâche on est en mode édition ou view
     } else if (this.task) {
       const assigneeIds = this.task.assignments?.map((a) => a.id.userId) || [];
       this.taskForm.patchValue({
