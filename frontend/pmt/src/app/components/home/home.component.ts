@@ -9,6 +9,8 @@ import { ToastService } from '../../services/toast.service';
 import { LocalProject, Project } from '../../models/project.model';
 import { getRoleLabel } from '../../utils/labels';
 import { ProjectModalComponent } from '../modals/project-modal/project-modal.component';
+import { Role } from '../../models/role.enum';
+import { ContributorService } from '../../services/contributor.service';
 
 @Component({
   selector: 'app-home',
@@ -26,6 +28,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
+    private contributorService: ContributorService,
     private projectService: ProjectService,
     private toastService: ToastService
   ) {}
@@ -44,13 +47,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  getUserRoleLabel(project: Project): { color: string; label: string } {
+  private getContributorRoleForProject(project: Project): Role | null {
     const contributor = project.contributors.find(
       (c) => c.id.idUser === this.userId
     );
-    return contributor
-      ? getRoleLabel(contributor.role)
-      : { color: '', label: '' };
+    return contributor?.role || null;
+  }
+
+  getUserRoleLabel(project: Project): { color: string; label: string } {
+    const role = this.getContributorRoleForProject(project);
+    return role ? getRoleLabel(role) : { color: '', label: '' };
+  }
+
+  setUserRoleForProject(project: Project): void {
+    const role = this.getContributorRoleForProject(project);
+    if (role) {
+      this.contributorService.setCurrentContributorRole(role);
+    }
   }
 
   loadProjects(): void {

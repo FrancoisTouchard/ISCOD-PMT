@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Observable, Subscription, tap } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { Contributor } from '../models/contributor.model';
 import { Role } from '../models/role.enum';
@@ -9,6 +9,10 @@ import { Role } from '../models/role.enum';
 })
 export class ContributorService implements OnDestroy {
   private subscription?: Subscription;
+  private currentContributorRoleSubject = new BehaviorSubject<Role | null>(
+    null
+  );
+  currentContributorRole$ = this.currentContributorRoleSubject.asObservable();
 
   constructor(private apiService: ApiService) {}
 
@@ -34,5 +38,13 @@ export class ContributorService implements OnDestroy {
     newRole: Role
   ): Observable<Contributor> {
     return this.apiService.patchContributorRole(projectId, userId, newRole);
+  }
+
+  setCurrentContributorRole(role: Role): void {
+    this.currentContributorRoleSubject.next(role);
+  }
+
+  getCurrentContributorRole(): Role | null {
+    return this.currentContributorRoleSubject.value;
   }
 }

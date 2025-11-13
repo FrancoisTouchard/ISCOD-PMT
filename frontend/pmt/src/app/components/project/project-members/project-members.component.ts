@@ -1,4 +1,4 @@
-import { CommonModule, NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
+import { CommonModule, NgFor, NgIf, NgStyle } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -19,7 +19,6 @@ export interface ContributorRoleUpdateData {
     CommonModule,
     NgbDropdownModule,
     ReactiveFormsModule,
-    NgClass,
     NgFor,
     NgIf,
     NgStyle,
@@ -30,6 +29,7 @@ export interface ContributorRoleUpdateData {
 export class ProjectMembersComponent {
   @Input() project!: Project | null;
   @Input() showAddForm = false;
+  @Input() currentUserRole!: Role | null;
 
   @Output() contributorDeleted = new EventEmitter<string>();
   @Output() contributorRoleUpdated =

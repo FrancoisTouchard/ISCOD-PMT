@@ -25,7 +25,7 @@
 
     <button
       class="btn btn-primary"
-      *ngIf="activeTab === 'members'"
+      *ngIf="userRole === 'ADMINISTRATEUR' && activeTab === 'members'"
       (click)="showAddContributorBlock()"
     >
       + Ajouter un membre
@@ -162,6 +162,7 @@
       <app-project-members
         *ngIf="activeTab === 'members'"
         [project]="project"
+        [currentUserRole]="userRole"
         [showAddForm]="showMemberForm"
         (contributorDeleted)="onContributorDeleted($event)"
         (contributorRoleUpdated)="onContributorRoleUpdated($event)"

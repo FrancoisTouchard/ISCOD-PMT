@@ -57,6 +57,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   showTaskForm = false;
   showMemberForm = false;
   userId: string = '';
+  userRole: Role | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -78,6 +79,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.projectId = this.route.snapshot.paramMap.get('id') || '';
+    this.userRole = this.contributorService.getCurrentContributorRole();
     if (this.projectId) {
       this.loadProject();
     } else {
@@ -169,8 +171,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
   // Gestionnaires d'événements pour les tâches
 
   onTaskAdded(newTask: LocalTask): void {
-    console.log('Ajout de tâche:', newTask);
-
     this.taskService
       .createTask(this.projectId, newTask)
       .pipe(takeUntil(this.destroy$))
