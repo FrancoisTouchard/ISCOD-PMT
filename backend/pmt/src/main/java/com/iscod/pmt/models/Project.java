@@ -42,6 +42,10 @@ public class Project {
 	@JsonManagedReference("project")
 	private Set<Contributor> contributors = new HashSet<>();
 	
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("project-history")
+    private Set<HistoryEntry> historyEntries = new HashSet<>();
+	
 	public UUID getId() {
 		return id;
 	}
