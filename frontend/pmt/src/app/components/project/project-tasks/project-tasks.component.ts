@@ -1,4 +1,4 @@
-import { CommonModule, NgStyle } from '@angular/common';
+import { CommonModule, NgIf, NgStyle } from '@angular/common';
 import {
   Component,
   EventEmitter,
@@ -17,6 +17,7 @@ import { HistoryService } from '../../../services/history.service';
 import { HistoryEntry } from '../../../models/historyEntry.model';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
+import { Role } from '../../../models/role.enum';
 
 @Component({
   selector: 'app-project-tasks',
@@ -26,6 +27,7 @@ import { Subject } from 'rxjs';
     NgbDropdownModule,
     HistoryModalComponent,
     TaskModalComponent,
+    NgIf,
     NgStyle,
   ],
   templateUrl: './project-tasks.component.html',
@@ -34,8 +36,8 @@ import { Subject } from 'rxjs';
 export class ProjectTasksComponent implements OnDestroy {
   @Input() project!: Project | null;
   @Input() tasks: Task[] = [];
-  @Input() showAddForm = false;
   @Input() loading = false;
+  @Input() currentUserRole: Role | null = null;
 
   @Output() taskAdded = new EventEmitter<LocalTask>();
   @Output() taskUpdated = new EventEmitter<{
@@ -56,7 +58,6 @@ export class ProjectTasksComponent implements OnDestroy {
   selectedStatus: TaskStatus | 'ALL' = 'ALL';
   statusList = Object.values(TaskStatus);
   TaskStatus = TaskStatus;
-  userId: string = '';
   getPriorityLabel = getPriorityLabel;
   getStatusLabel = getStatusLabel;
 

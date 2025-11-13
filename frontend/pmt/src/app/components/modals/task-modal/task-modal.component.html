@@ -202,7 +202,13 @@
           Fermer
         </button>
         <button
-          *ngIf="!isEditMode && mode === 'view'"
+          *ngIf="
+            currentUserRole &&
+            (currentUserRole === 'ADMINISTRATEUR' ||
+              currentUserRole === 'MEMBRE') &&
+            !isEditMode &&
+            mode === 'view'
+          "
           class="btn btn-primary"
           (click)="enableEditMode()"
         >

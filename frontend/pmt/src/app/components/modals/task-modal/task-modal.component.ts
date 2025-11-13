@@ -19,6 +19,7 @@ import { Priority } from '../../../models/priority.enum';
 import { Project } from '../../../models/project.model';
 import { LocalTask, Task } from '../../../models/task.model';
 import { TaskStatus } from '../../../models/taskStatus.enum';
+import { Role } from '../../../models/role.enum';
 
 @Component({
   selector: 'app-task-modal',
@@ -36,10 +37,11 @@ import { TaskStatus } from '../../../models/taskStatus.enum';
   styleUrl: './task-modal.component.scss',
 })
 export class TaskModalComponent implements OnChanges {
+  @Input() currentUserRole: Role | null = null;
   @Input() isOpen = false;
   @Input() mode: 'create' | 'view' | 'edit' = 'view';
-  @Input() task: Task | null = null;
   @Input() project: Project | null = null;
+  @Input() task: Task | null = null;
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<LocalTask>();

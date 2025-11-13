@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CommonModule, NgClass, NgIf } from '@angular/common';
@@ -9,8 +9,8 @@ import { ToastService } from '../../services/toast.service';
 import { LocalProject, Project } from '../../models/project.model';
 import { getRoleLabel } from '../../utils/labels';
 import { ProjectModalComponent } from '../modals/project-modal/project-modal.component';
+import { getCurrentUserRole } from '../../utils/role.utils';
 import { Role } from '../../models/role.enum';
-import { ContributorService } from '../../services/contributor.service';
 
 @Component({
   selector: 'app-home',
@@ -20,6 +20,8 @@ import { ContributorService } from '../../services/contributor.service';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  currentUserRole: Role | null = null;
+  getCurrentUserRole = getCurrentUserRole;
   getRoleLabel = getRoleLabel;
   isModalOpen = false;
   loading = false;
@@ -28,9 +30,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private contributorService: ContributorService,
     private projectService: ProjectService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -47,23 +49,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private getContributorRoleForProject(project: Project): Role | null {
-    const contributor = project.contributors.find(
-      (c) => c.id.idUser === this.userId
-    );
-    return contributor?.role || null;
-  }
-
   getUserRoleLabel(project: Project): { color: string; label: string } {
-    const role = this.getContributorRoleForProject(project);
-    return role ? getRoleLabel(role) : { color: '', label: '' };
-  }
-
-  setUserRoleForProject(project: Project): void {
-    const role = this.getContributorRoleForProject(project);
-    if (role) {
-      this.contributorService.setCurrentContributorRole(role);
-    }
+    this.currentUserRole = this.getCurrentUserRole(project, this.userId);
+    return this.currentUserRole
+      ? getRoleLabel(this.currentUserRole)
+      : { color: '', label: '' };
   }
 
   loadProjects(): void {
@@ -89,6 +79,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   logOut(): void {
     this.authService.logout();
+  }
+
+  navigateToProject(project: Project): void {
+    this.router.navigate(['/project', project.id], {
+      state: { project },
+    });
   }
 
   openProjectCreationModal() {

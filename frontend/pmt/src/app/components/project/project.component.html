@@ -24,7 +24,11 @@
   <div class="mb-4 d-flex justify-content-start">
     <button
       class="btn btn-primary"
-      *ngIf="userRole !== 'OBSERVATEUR' && activeTab === 'tasks'"
+      *ngIf="
+        (currentUserRole === 'ADMINISTRATEUR' ||
+          currentUserRole === 'MEMBRE') &&
+        activeTab === 'tasks'
+      "
       (click)="openTaskModalFromParent()"
     >
       + Ajouter une tâche
@@ -32,7 +36,7 @@
 
     <button
       class="btn btn-primary"
-      *ngIf="userRole === 'ADMINISTRATEUR' && activeTab === 'members'"
+      *ngIf="currentUserRole === 'ADMINISTRATEUR' && activeTab === 'members'"
       (click)="showAddContributorBlock()"
     >
       + Ajouter un membre
@@ -150,11 +154,10 @@
         [loading]="loading"
         [project]="project"
         [tasks]="tasks"
-        [showAddForm]="showTaskForm"
+        [currentUserRole]="currentUserRole!"
         (taskAdded)="onTaskAdded($event)"
         (taskUpdated)="onTaskUpdated($event)"
         (taskDeleted)="onTaskDeleted($event)"
-        (formClosed)="showTaskForm = false"
       ></app-project-tasks>
     </div>
 
@@ -170,7 +173,7 @@
       <app-project-members
         *ngIf="activeTab === 'members'"
         [project]="project"
-        [currentUserRole]="userRole"
+        [currentUserRole]="currentUserRole"
         [showAddForm]="showMemberForm"
         (contributorDeleted)="onContributorDeleted($event)"
         (contributorRoleUpdated)="onContributorRoleUpdated($event)"

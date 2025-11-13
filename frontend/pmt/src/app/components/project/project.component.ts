@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 import { AuthService } from '../../services/auth.service';
@@ -24,6 +24,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Role } from '../../models/role.enum';
+import { getCurrentUserRole } from '../../utils/role.utils';
 
 interface ContributorAddData {
   email: string;
@@ -49,15 +50,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
   isContributorSubmitted = false;
   activeTab: string = 'tasks';
   private destroy$ = new Subject<void>();
+  getCurrentUserRole = getCurrentUserRole;
   getRoleLabel = getRoleLabel;
   loading = false;
   project: Project | null = null;
   projectId = '';
   Role = Role;
-  showTaskForm = false;
   showMemberForm = false;
-  userId: string = '';
-  userRole: Role | null = null;
+  userId: string | null = '';
+  currentUserRole: Role | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -79,9 +80,19 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.projectId = this.route.snapshot.paramMap.get('id') || '';
-    this.userRole = this.contributorService.getCurrentContributorRole();
-    if (this.projectId) {
-      this.loadProject();
+    this.userId = localStorage.getItem('userId');
+    // Récupérer le projet depuis le state de navigation
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras?.state || history.state;
+
+    if (state && state['project']) {
+      this.project = state['project'];
+      if (this.userId)
+        this.currentUserRole = getCurrentUserRole(this.project, this.userId);
+      this.loadTasksOnly();
+    } else if (this.projectId) {
+      // Fallback : charger le projet depuis l'API (ex: accès direct via URL)
+      this.loadProjectAndTasks();
     } else {
       this.toastService.showToast(`Projet non trouvé`, 'error');
     }
@@ -131,10 +142,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.showMemberForm = true;
   }
 
-  showAddTaskBlock() {
-    this.showTaskForm = true;
-  }
-
   openTaskModalFromParent(): void {
     this.activeTab = 'tasks';
     setTimeout(() => {
@@ -142,25 +149,44 @@ export class ProjectComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadProject(): void {
+  loadTasksOnly(): void {
     this.loading = true;
 
-    forkJoin({
-      project: this.projectService.getProjectById(this.projectId),
-      tasks: this.taskService.getTasksByProjectId(this.projectId),
-    })
+    this.taskService
+      .getTasksByProjectId(this.projectId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ project, tasks }) => {
-          this.project = project;
+        next: (tasks) => {
           this.taskService.tasks = tasks;
           this.loading = false;
-          console.log('Projet et tâches chargés', { project, tasks });
+          console.log('Tâches chargées', tasks);
         },
         error: (err) => {
           console.error(err);
           this.toastService.showToast(
-            'Erreur lors du chargement des données',
+            'Erreur lors du chargement des tâches',
+            'error'
+          );
+          this.loading = false;
+        },
+      });
+  }
+
+  loadProjectAndTasks(): void {
+    this.loading = true;
+
+    this.projectService
+      .getProjectById(this.projectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (project) => {
+          this.project = project;
+          this.loadTasksOnly();
+        },
+        error: (err) => {
+          console.error(err);
+          this.toastService.showToast(
+            'Erreur lors du chargement du projet',
             'error'
           );
           this.loading = false;
@@ -176,7 +202,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (createdTask) => {
-          this.loadProject();
+          this.loadTasksOnly();
           this.activeTab = 'tasks';
           this.toastService.showToast(
             `Tâche "${createdTask.name}" ajoutée avec succès !`,
@@ -205,7 +231,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
             `Tâche "${updatedTask.name}" mise à jour avec succès !`,
             'success'
           );
-          this.loadProject();
+          this.loadTasksOnly();
         },
         error: (err) => {
           console.error('Erreur lors de la mise à jour de la tâche :', err);
@@ -223,7 +249,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.loadProject();
+          this.loadTasksOnly();
           this.toastService.showToast(
             `Tâche supprimée avec succès !`,
             'success'
@@ -256,7 +282,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (addedContributor) => {
-          this.loadProject();
+          this.loadProjectAndTasks();
           this.activeTab = 'members';
           this.toastService.showToast(
             `Contributeur "${addedContributor.userEmail}" ajouté avec le rôle ${
@@ -281,7 +307,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.loadProject();
+          this.loadProjectAndTasks();
           this.toastService.showToast(
             `Le contributeur a été retiré du projet`,
             'success'
@@ -304,7 +330,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedContributor) => {
-          this.loadProject();
+          this.loadProjectAndTasks();
           this.loading = false;
           this.toastService.showToast(
             `${updatedContributor.userName} est maintenant ${updatedContributor.role}`,

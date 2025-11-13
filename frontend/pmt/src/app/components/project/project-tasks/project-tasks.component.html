@@ -124,6 +124,7 @@
                 Historique
               </button>
               <button
+                *ngIf="currentUserRole === 'ADMINISTRATEUR'"
                 class="btn btn-sm btn-danger rounded-pill"
                 (click)="onTaskDeleted(task)"
                 title="Supprimer la tâche"
@@ -145,7 +146,14 @@
     <div>
       <strong>Aucune tâche</strong> - Vous n'avez aucune tâche pour le moment.
     </div>
-    <button class="btn btn-primary mt-2" (click)="openModal()">
+    <button
+      *ngIf="
+        currentUserRole &&
+        (currentUserRole === 'ADMINISTRATEUR' || currentUserRole === 'MEMBRE')
+      "
+      class="btn btn-primary mt-2"
+      (click)="openModal()"
+    >
       Créer une tâche
     </button>
   </div>
@@ -153,6 +161,7 @@
 
 <app-task-modal
   [isOpen]="isModalOpen"
+  [currentUserRole]="currentUserRole"
   [mode]="modalMode"
   [task]="selectedTask"
   [project]="project"
