@@ -1,5 +1,5 @@
 <div>
-  <div class="table-responsive mt-3">
+  <div *ngIf="tasks.length > 0" class="table-responsive mt-3">
     <table class="table table-striped table-hover align-middle">
       <thead class="table-dark">
         <tr>
@@ -137,20 +137,33 @@
     </table>
   </div>
 
-  <app-task-modal
-    [isOpen]="isModalOpen"
-    [mode]="modalMode"
-    [task]="selectedTask"
-    [project]="project"
-    (closed)="closeModal()"
-    (saved)="onTaskSaved($event)"
-  ></app-task-modal>
-
-  <app-history-modal
-    [isOpen]="isHistoryModalOpen"
-    [taskName]="selectedTask?.name"
-    [historyEntries]="selectedTaskHistory"
-    [loading]="loadingHistory"
-    (closed)="closeHistoryModal()"
-  ></app-history-modal>
+  <!-- Empty screen tâches -->
+  <div
+    *ngIf="tasks.length === 0"
+    class="alert alert-info d-flex flex-column align-items-center mt-4"
+  >
+    <div>
+      <strong>Aucune tâche</strong> - Vous n'avez aucun projet pour le moment.
+    </div>
+    <button class="btn btn-primary mt-2" (click)="openModal()">
+      Créer une tâche
+    </button>
+  </div>
 </div>
+
+<app-task-modal
+  [isOpen]="isModalOpen"
+  [mode]="modalMode"
+  [task]="selectedTask"
+  [project]="project"
+  (closed)="closeModal()"
+  (saved)="onTaskSaved($event)"
+></app-task-modal>
+
+<app-history-modal
+  [isOpen]="isHistoryModalOpen"
+  [taskName]="selectedTask?.name"
+  [historyEntries]="selectedTaskHistory"
+  [loading]="loadingHistory"
+  (closed)="closeHistoryModal()"
+></app-history-modal>
