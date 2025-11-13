@@ -64,6 +64,11 @@ export class ProjectModalComponent {
   }
 
   close(): void {
+    this.projectCreationForm.reset({
+      name: null,
+      description: null,
+      startDate: null,
+    });
     this.closed.emit();
   }
 }
