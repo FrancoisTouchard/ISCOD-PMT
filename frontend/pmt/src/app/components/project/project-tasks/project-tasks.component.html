@@ -1,5 +1,5 @@
 <div>
-  <div *ngIf="tasks.length > 0" class="table-responsive mt-3">
+  <div *ngIf="!loading && tasks.length > 0" class="table-responsive mt-3">
     <table class="table table-striped table-hover align-middle rounded-table">
       <thead class="table-dark">
         <tr>
@@ -139,7 +139,7 @@
 
   <!-- Empty screen tâches -->
   <div
-    *ngIf="tasks.length === 0"
+    *ngIf="!loading && tasks.length === 0"
     class="alert alert-info d-flex flex-column align-items-center mt-4"
   >
     <div>

@@ -9,7 +9,14 @@
   </div>
 </nav>
 
-<div class="container mt-4">
+<!-- Chargement -->
+<div *ngIf="loading" class="text-center mt-4">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Chargement...</span>
+  </div>
+</div>
+
+<div *ngIf="!loading" class="container mt-4">
   <h1 class="mb-4">{{ project?.name }}</h1>
   <h2 class="mb-4">{{ project?.description }}</h2>
 
@@ -17,7 +24,7 @@
   <div class="mb-4 d-flex justify-content-start">
     <button
       class="btn btn-primary"
-      *ngIf="activeTab === 'tasks'"
+      *ngIf="userRole !== 'OBSERVATEUR' && activeTab === 'tasks'"
       (click)="openTaskModalFromParent()"
     >
       + Ajouter une tâche
@@ -140,6 +147,7 @@
       <app-project-tasks
         #tasksComponent
         *ngIf="activeTab === 'tasks'"
+        [loading]="loading"
         [project]="project"
         [tasks]="tasks"
         [showAddForm]="showTaskForm"

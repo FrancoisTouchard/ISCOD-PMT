@@ -1,5 +1,11 @@
 import { CommonModule, NgStyle } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  Output,
+} from '@angular/core';
 import { Priority } from '../../../models/priority.enum';
 import { Project } from '../../../models/project.model';
 import { LocalTask, Task } from '../../../models/task.model';
@@ -10,6 +16,7 @@ import { HistoryModalComponent } from '../../modals/history-modal/history-modal.
 import { HistoryService } from '../../../services/history.service';
 import { HistoryEntry } from '../../../models/historyEntry.model';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-project-tasks',
@@ -24,10 +31,11 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './project-tasks.component.html',
   styleUrl: './project-tasks.component.scss',
 })
-export class ProjectTasksComponent {
+export class ProjectTasksComponent implements OnDestroy {
   @Input() project!: Project | null;
   @Input() tasks: Task[] = [];
   @Input() showAddForm = false;
+  @Input() loading = false;
 
   @Output() taskAdded = new EventEmitter<LocalTask>();
   @Output() taskUpdated = new EventEmitter<{
@@ -37,6 +45,7 @@ export class ProjectTasksComponent {
   @Output() taskDeleted = new EventEmitter<string>();
   @Output() formClosed = new EventEmitter<void>();
 
+  private destroy$ = new Subject<void>();
   selectedTask: Task | null = null;
   selectedTaskHistory: HistoryEntry[] = [];
   modalMode: 'create' | 'view' | 'edit' = 'view';
@@ -52,6 +61,11 @@ export class ProjectTasksComponent {
   getStatusLabel = getStatusLabel;
 
   constructor(private historyService: HistoryService) {}
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   openModal(): void {
     this.selectedTask = null;
