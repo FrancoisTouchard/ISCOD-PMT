@@ -56,7 +56,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   project: Project | null = null;
   projectId = '';
   Role = Role;
-  showMemberForm = false;
+  isMemberModalOpen = false;
   userId: string | null = '';
   currentUserRole: Role | null = null;
 
@@ -127,7 +127,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
   }
 
-  hideAddContributorBlock() {
+  closeMemberModal() {
     this.addContributorForm.reset({
       contributorData: {
         email: null,
@@ -135,11 +135,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
       },
     });
     this.isContributorSubmitted = false;
-    this.showMemberForm = false;
+    this.isMemberModalOpen = false;
   }
 
   showAddContributorBlock() {
-    this.showMemberForm = true;
+    this.isMemberModalOpen = true;
   }
 
   openTaskModalFromParent(): void {
@@ -290,7 +290,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
             } !`,
             'success'
           );
-          this.hideAddContributorBlock();
+          this.closeMemberModal();
         },
         error: (err: HttpErrorResponse) => {
           this.errorHandlerService.handleError(

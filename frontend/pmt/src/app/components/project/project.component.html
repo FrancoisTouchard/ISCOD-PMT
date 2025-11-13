@@ -39,66 +39,93 @@
       *ngIf="currentUserRole === 'ADMINISTRATEUR' && activeTab === 'members'"
       (click)="showAddContributorBlock()"
     >
-      + Ajouter un membre
+      + Ajouter un contributeur
     </button>
   </div>
 
   <!-- Form d'ajout de contributeur -->
-  <div *ngIf="showMemberForm" class="mb-4 form-container">
-    <div class="custom-modal add-member-form">
-      <div class="modal-header">
-        <h5 class="modal-title">Ajouter un contributeur</h5>
-        <button
-          type="button"
-          class="btn-close"
-          (click)="hideAddContributorBlock()"
-        ></button>
-      </div>
+  <div
+    *ngIf="isMemberModalOpen"
+    class="modal-overlay"
+    (click)="closeMemberModal()"
+  >
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Ajouter un contributeur</h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeMemberModal()"
+          ></button>
+        </div>
 
-      <form
-        [formGroup]="addContributorForm"
-        (ngSubmit)="onContributorAdded()"
-        [ngClass]="{ submitted: isContributorSubmitted }"
-      >
-        <div formGroupName="contributorData">
-          <div class="input-group mt-3 mb-3">
-            <label class="input-group-text" for="email">Email</label>
-            <input
-              id="email"
-              class="form-control"
-              formControlName="email"
-              placeholder="utilisateur@exemple.com"
-              type="email"
-            />
-          </div>
+        <div class="modal-body">
+          <form
+            [formGroup]="addContributorForm"
+            (ngSubmit)="onContributorAdded()"
+          >
+            <div formGroupName="contributorData">
+              <!-- Email -->
+              <div class="mb-3">
+                <label class="form-label" for="email">Email*</label>
+                <input
+                  id="email"
+                  class="form-control"
+                  formControlName="email"
+                  placeholder="exemple@mail.com"
+                  required
+                />
+                <div
+                  *ngIf="email.hasError('required') && email.touched"
+                  class="text-danger mt-1"
+                >
+                  L'email est requis
+                </div>
+                <div
+                  *ngIf="email.hasError('email') && email.touched"
+                  class="text-danger mt-1"
+                >
+                  Le format d'email n'est pas bon
+                </div>
+              </div>
 
-          <div class="input-group mb-3">
-            <label class="input-group-text" for="role">Rôle</label>
-            <select id="role" class="form-select" formControlName="role">
-              <option [value]="Role.ADMINISTRATEUR">
-                {{ getRoleLabel(Role.ADMINISTRATEUR).label }}
-              </option>
-              <option [value]="Role.MEMBRE">
-                {{ getRoleLabel(Role.MEMBRE).label }}
-              </option>
-              <option [value]="Role.OBSERVATEUR">
-                {{ getRoleLabel(Role.OBSERVATEUR).label }}
-              </option>
-            </select>
-          </div>
+              <!-- Role -->
+              <div class="mb-3">
+                <label class="form-label" for="role">Rôle</label>
+                <select id="role" class="form-select" formControlName="role">
+                  <option [value]="Role.ADMINISTRATEUR">
+                    {{ getRoleLabel(Role.ADMINISTRATEUR).label }}
+                  </option>
+                  <option [value]="Role.MEMBRE">
+                    {{ getRoleLabel(Role.MEMBRE).label }}
+                  </option>
+                  <option [value]="Role.OBSERVATEUR">
+                    {{ getRoleLabel(Role.OBSERVATEUR).label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </form>
         </div>
 
         <div class="modal-footer">
           <button
             class="btn btn-secondary"
             type="button"
-            (click)="hideAddContributorBlock()"
+            (click)="closeMemberModal()"
           >
             Annuler
           </button>
-          <button class="btn btn-primary ms-3" type="submit">Ajouter</button>
+          <button
+            class="btn btn-primary"
+            type="submit"
+            (click)="onContributorAdded()"
+          >
+            Ajouter
+          </button>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -174,10 +201,10 @@
         *ngIf="activeTab === 'members'"
         [project]="project"
         [currentUserRole]="currentUserRole"
-        [showAddForm]="showMemberForm"
+        [showAddForm]="isMemberModalOpen"
         (contributorDeleted)="onContributorDeleted($event)"
         (contributorRoleUpdated)="onContributorRoleUpdated($event)"
-        (formClosed)="showMemberForm = false"
+        (formClosed)="isMemberModalOpen = false"
       ></app-project-members>
     </div>
   </div>
