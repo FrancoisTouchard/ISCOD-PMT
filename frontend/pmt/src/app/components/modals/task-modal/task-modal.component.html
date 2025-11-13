@@ -82,11 +82,21 @@
             />
             <div
               *ngIf="
-                taskForm.get('name')?.invalid && taskForm.get('name')?.touched
+                taskForm.get('name')?.hasError('required') &&
+                taskForm.get('name')?.touched
               "
               class="text-danger mt-1"
             >
               Le nom est requis
+            </div>
+            <div
+              *ngIf="
+                taskForm.get('name')?.hasError('maxlength') &&
+                taskForm.get('name')?.touched
+              "
+              class="text-danger mt-1"
+            >
+              Le nom ne doit pas dépasser 100 caractères
             </div>
           </div>
 
@@ -99,6 +109,15 @@
               rows="3"
               placeholder="Description de la tâche"
             ></textarea>
+            <div
+              *ngIf="
+                taskForm.get('description')?.hasError('maxlength') &&
+                taskForm.get('description')?.touched
+              "
+              class="text-danger mt-1"
+            >
+              La description ne doit pas dépasser 250 caractères
+            </div>
           </div>
 
           <div class="row mb-3">

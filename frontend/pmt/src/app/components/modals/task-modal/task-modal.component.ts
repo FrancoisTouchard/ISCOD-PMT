@@ -55,8 +55,11 @@ export class TaskModalComponent implements OnChanges {
 
   constructor() {
     this.taskForm = new FormGroup({
-      name: new FormControl(null, [Validators.required]),
-      description: new FormControl(null),
+      name: new FormControl(null, [
+        Validators.required,
+        Validators.maxLength(100),
+      ]),
+      description: new FormControl(null, [Validators.maxLength(250)]),
       dueDate: new FormControl(null, [Validators.required]),
       endDate: new FormControl(null),
       priority: new FormControl(Priority.MEDIUM, [Validators.required]),
