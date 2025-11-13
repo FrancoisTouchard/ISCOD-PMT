@@ -64,10 +64,7 @@
                   required
                 />
                 <div
-                  *ngIf="
-                    projectCreationForm.get('startDate')?.invalid &&
-                    projectCreationForm.get('startDate')?.touched
-                  "
+                  *ngIf="startDate.invalid && startDate.touched"
                   class="text-danger mt-1"
                 >
                   La date de début est requise
