@@ -1,48 +1,96 @@
-<div *ngIf="isOpen" class="custom-backdrop">
-  <div class="custom-modal">
-    <div class="modal-header">
-      <h5 class="modal-title">Créer un projet</h5>
-      <button type="button" class="btn-close" (click)="close()"></button>
-    </div>
+<div *ngIf="isOpen" class="modal-overlay" (click)="close()">
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Créer un projet</h5>
+        <button type="button" class="btn-close" (click)="close()"></button>
+      </div>
 
-    <form [formGroup]="projectCreationForm" (ngSubmit)="onSubmit()">
-      <div formGroupName="projectData">
-        <div class="input-group mt-3 mb-3">
-          <label class="input-group-text" for="name">Nom du projet</label>
-          <input
-            id="inputName"
-            class="form-control"
-            formControlName="name"
-            placeholder="Mon super projet"
-            type="text"
-          />
-        </div>
+      <div class="modal-body">
+        <form [formGroup]="projectCreationForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3" formGroupName="projectData">
+            <div>
+              <label class="form-label" for="projectName">Nom *</label>
+              <input
+                id="projectName"
+                class="form-control"
+                formControlName="name"
+                placeholder="Nom du projet"
+                required
+              />
+              <div
+                *ngIf="name.hasError('required') && name.touched"
+                class="text-danger mt-1"
+              >
+                Le nom est requis
+              </div>
+              <div
+                *ngIf="name.hasError('maxlength') && name.touched"
+                class="text-danger mt-1"
+              >
+                Le nom ne doit pas dépasser 100 caractères
+              </div>
+            </div>
 
-        <div class="input-group mb-3">
-          <label class="input-group-text" for="description">Description</label>
-          <textarea
-            id="inputDescription"
-            class="form-control"
-            formControlName="description"
-          ></textarea>
-        </div>
+            <div class="mb-3">
+              <label class="form-label" for="projectDescription"
+                >Description</label
+              >
+              <textarea
+                id="projectDescription"
+                class="form-control"
+                formControlName="description"
+                rows="3"
+                placeholder="Description du projet"
+              ></textarea>
+              <div
+                *ngIf="description.hasError('maxlength') && description.touched"
+                class="text-danger mt-1"
+              >
+                La description ne doit pas dépasser 250 caractères
+              </div>
+            </div>
 
-        <div class="input-group mb-3">
-          <label class="input-group-text" for="startDate">Date de début</label>
-          <input
-            id="inputDate"
-            class="form-control"
-            formControlName="startDate"
-            placeholder="2025-10-23"
-            type="date"
-          />
-        </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label" for="startDate"
+                  >Date de début *</label
+                >
+                <input
+                  id="startDate"
+                  class="form-control"
+                  type="date"
+                  formControlName="startDate"
+                  required
+                />
+                <div
+                  *ngIf="
+                    projectCreationForm.get('startDate')?.invalid &&
+                    projectCreationForm.get('startDate')?.touched
+                  "
+                  class="text-danger mt-1"
+                >
+                  La date de début est requise
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="close()">Annuler</button>
-        <button class="btn btn-primary ms-3" type="submit">Valider</button>
+        <button class="btn btn-secondary" type="button" (click)="close()">
+          Annuler
+        </button>
+        <button
+          class="btn btn-primary"
+          type="submit"
+          [disabled]="projectCreationForm.invalid"
+          (click)="onSubmit()"
+        >
+          Créer
+        </button>
       </div>
-    </form>
+    </div>
   </div>
 </div>

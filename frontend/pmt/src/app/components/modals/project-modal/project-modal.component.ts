@@ -25,8 +25,11 @@ export class ProjectModalComponent {
   constructor() {
     this.projectCreationForm = new FormGroup({
       projectData: new FormGroup({
-        name: new FormControl(null, [Validators.required]),
-        description: new FormControl(null),
+        name: new FormControl(null, [
+          Validators.required,
+          Validators.maxLength(100),
+        ]),
+        description: new FormControl(null, [Validators.maxLength(250)]),
         startDate: new FormControl(null),
       }),
     });
