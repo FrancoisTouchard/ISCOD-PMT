@@ -44,11 +44,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  getUserRoleLabel(project: Project): string {
+  getUserRoleLabel(project: Project): { color: string; label: string } {
     const contributor = project.contributors.find(
       (c) => c.id.idUser === this.userId
     );
-    return contributor ? getRoleLabel(contributor.role).label : '';
+    return contributor
+      ? getRoleLabel(contributor.role)
+      : { color: '', label: '' };
   }
 
   loadProjects(): void {
