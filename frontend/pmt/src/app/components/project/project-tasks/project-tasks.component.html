@@ -170,6 +170,7 @@
 ></app-task-modal>
 
 <app-history-modal
+  [contributors]="contributors"
   [isOpen]="isHistoryModalOpen"
   [taskName]="selectedTask?.name"
   [historyEntries]="selectedTaskHistory"

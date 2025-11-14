@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/project.service';
 import { ToastService } from '../../services/toast.service';
 import { LocalProject, Project } from '../../models/project.model';
-import { getRoleLabel } from '../../utils/labels';
+import { getRoleLabel } from '../../utils/labels.utils';
 import { ProjectModalComponent } from '../modals/project-modal/project-modal.component';
 import { getCurrentUserRole } from '../../utils/role.utils';
 import { Role } from '../../models/role.enum';

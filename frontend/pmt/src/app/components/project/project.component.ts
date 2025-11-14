@@ -16,7 +16,7 @@ import {
   ProjectMembersComponent,
   ContributorRoleUpdateData,
 } from './project-members/project-members.component';
-import { getRoleLabel } from '../../utils/labels';
+import { getRoleLabel } from '../../utils/labels.utils';
 import {
   FormControl,
   FormGroup,

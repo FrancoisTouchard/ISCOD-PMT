@@ -142,9 +142,8 @@
   font-size: 1rem;
 }
 
-// Scrollbar personnalisée
 .modal-body::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .modal-body::-webkit-scrollbar-track {
@@ -155,8 +154,4 @@
 .modal-body::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }

@@ -5,7 +5,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Contributor } from '../../../models/contributor.model';
 import { Project } from '../../../models/project.model';
 import { Role } from '../../../models/role.enum';
-import { getRoleLabel } from '../../../utils/labels';
+import { getRoleLabel } from '../../../utils/labels.utils';
 import { getCurrentUserRole } from '../../../utils/role.utils';
 
 export interface ContributorRoleUpdateData {

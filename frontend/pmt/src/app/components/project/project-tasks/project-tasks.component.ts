@@ -4,6 +4,7 @@ import {
   EventEmitter,
   Input,
   OnDestroy,
+  OnInit,
   Output,
 } from '@angular/core';
 import { Priority } from '../../../models/priority.enum';
@@ -11,13 +12,14 @@ import { Project } from '../../../models/project.model';
 import { LocalTask, Task } from '../../../models/task.model';
 import { TaskModalComponent } from '../../modals/task-modal/task-modal.component';
 import { TaskStatus } from '../../../models/taskStatus.enum';
-import { getPriorityLabel, getStatusLabel } from '../../../utils/labels';
+import { getPriorityLabel, getStatusLabel } from '../../../utils/labels.utils';
 import { HistoryModalComponent } from '../../modals/history-modal/history-modal.component';
 import { HistoryService } from '../../../services/history.service';
 import { HistoryEntry } from '../../../models/historyEntry.model';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
 import { Role } from '../../../models/role.enum';
+import { Contributor } from '../../../models/contributor.model';
 
 @Component({
   selector: 'app-project-tasks',
@@ -33,7 +35,7 @@ import { Role } from '../../../models/role.enum';
   templateUrl: './project-tasks.component.html',
   styleUrl: './project-tasks.component.scss',
 })
-export class ProjectTasksComponent implements OnDestroy {
+export class ProjectTasksComponent implements OnInit, OnDestroy {
   @Input() project!: Project | null;
   @Input() tasks: Task[] = [];
   @Input() loading = false;
@@ -48,6 +50,7 @@ export class ProjectTasksComponent implements OnDestroy {
   @Output() formClosed = new EventEmitter<void>();
 
   private destroy$ = new Subject<void>();
+  contributors: Contributor[] = [];
   selectedTask: Task | null = null;
   selectedTaskHistory: HistoryEntry[] = [];
   modalMode: 'create' | 'view' | 'edit' = 'view';
@@ -62,6 +65,9 @@ export class ProjectTasksComponent implements OnDestroy {
   getStatusLabel = getStatusLabel;
 
   constructor(private historyService: HistoryService) {}
+  ngOnInit(): void {
+    if (this.project) this.contributors = this.project.contributors;
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -91,7 +97,6 @@ export class ProjectTasksComponent implements OnDestroy {
       next: (entries) => {
         this.selectedTaskHistory = entries;
         this.loadingHistory = false;
-        console.log('entries histooo', entries);
       },
       error: (err) => {
         console.error("Erreur lors du chargement de l'historique:", err);

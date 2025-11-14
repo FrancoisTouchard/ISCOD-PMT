@@ -10,7 +10,7 @@
       </div>
 
       <div class="modal-body">
-        <!-- État de chargement -->
+        <!-- Chargement -->
         <div *ngIf="loading" class="text-center py-4">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Chargement...</span>
@@ -18,7 +18,7 @@
           <p class="mt-2">Chargement de l'historique...</p>
         </div>
 
-        <!-- Aucune entrée -->
+        <!-- Empty screen -->
         <div
           *ngIf="!loading && historyEntries.length === 0"
           class="alert alert-info"
@@ -27,7 +27,6 @@
           Aucune modification n'a été enregistrée pour cette tâche.
         </div>
 
-        <!-- Liste des modifications -->
         <div *ngIf="!loading && historyEntries.length > 0" class="history-list">
           <div *ngFor="let entry of historyEntries" class="history-entry">
             <div class="entry-header">
@@ -35,9 +34,8 @@
                 <span class="field-label">Modifié par:</span>
                 <span class="user-name">{{ entry.userName }}</span>
                 <span class="field-label">Date de modification :</span>
-
                 <span class="entry-date">{{
-                  formatDate(entry.modifiedAt)
+                  formatDateWithMinutes(entry.modifiedAt)
                 }}</span>
               </div>
             </div>
@@ -48,13 +46,39 @@
                   getTaskFieldLabel(entry.modifiedFieldName)
                 }}</span>
                 <div class="change-values">
-                  <span class="old-value">{{
-                    entry.oldFieldValue || "(vide)"
-                  }}</span>
+                  <span
+                    class="old-value"
+                    [style.font-weight]="
+                      entry.modifiedFieldName === 'priority' ||
+                      entry.modifiedFieldName === 'status'
+                        ? '500'
+                        : 'normal'
+                    "
+                  >
+                    {{
+                      formatFieldValue(
+                        entry.modifiedFieldName,
+                        entry.oldFieldValue!
+                      )
+                    }}
+                  </span>
                   <span class="arrow">→</span>
-                  <span class="new-value">{{
-                    entry.newFieldValue || "(vide)"
-                  }}</span>
+                  <span
+                    class="new-value"
+                    [style.font-weight]="
+                      entry.modifiedFieldName === 'priority' ||
+                      entry.modifiedFieldName === 'status'
+                        ? '500'
+                        : 'normal'
+                    "
+                  >
+                    {{
+                      formatFieldValue(
+                        entry.modifiedFieldName,
+                        entry.newFieldValue!
+                      )
+                    }}
+                  </span>
                 </div>
               </div>
             </div>

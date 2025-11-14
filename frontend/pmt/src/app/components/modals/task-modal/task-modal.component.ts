@@ -14,7 +14,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { getPriorityLabel, getStatusLabel } from '../../../utils/labels';
+import { getPriorityLabel, getStatusLabel } from '../../../utils/labels.utils';
 import { Priority } from '../../../models/priority.enum';
 import { Project } from '../../../models/project.model';
 import { LocalTask, Task } from '../../../models/task.model';
