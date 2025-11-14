@@ -27,7 +27,6 @@ export class AuthService {
     this._userId = userId;
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('userId', userId);
-    console.log('localstorrr', localStorage);
   }
 
   logout() {

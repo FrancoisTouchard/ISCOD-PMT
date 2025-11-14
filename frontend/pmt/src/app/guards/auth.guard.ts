@@ -18,5 +18,10 @@ export const authGuard: CanActivateFn = async (_route, state) => {
     router.navigate(['']);
     return false;
   }
+
+  if (!isLoggedIn && currentUrl.startsWith('/project')) {
+    router.navigate(['']);
+    return false;
+  }
   return true;
 };
