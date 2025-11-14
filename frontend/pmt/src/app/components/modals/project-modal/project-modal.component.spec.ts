@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProjectModalComponent } from './project-modal.component';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('ProjectModalComponent', () => {
   let component: ProjectModalComponent;
@@ -8,9 +9,9 @@ describe('ProjectModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProjectModalComponent]
-    })
-    .compileComponents();
+      imports: [ProjectModalComponent],
+      providers: [provideHttpClientTesting],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectModalComponent);
     component = fixture.componentInstance;
