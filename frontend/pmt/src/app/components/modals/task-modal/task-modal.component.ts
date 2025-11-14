@@ -1,4 +1,4 @@
-import { CommonModule, NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
+import { CommonModule, NgFor, NgIf, NgStyle } from '@angular/common';
 import {
   Component,
   EventEmitter,
@@ -28,7 +28,6 @@ import { Role } from '../../../models/role.enum';
     CommonModule,
     NgbDropdownModule,
     ReactiveFormsModule,
-    NgClass,
     NgFor,
     NgIf,
     NgStyle,

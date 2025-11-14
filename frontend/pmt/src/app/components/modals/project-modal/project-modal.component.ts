@@ -1,4 +1,4 @@
-import { CommonModule, NgClass, NgIf, NgStyle } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   FormControl,
@@ -10,7 +10,7 @@ import { LocalProject } from '../../../models/project.model';
 
 @Component({
   selector: 'app-project-modal',
-  imports: [CommonModule, ReactiveFormsModule, NgClass, NgIf, NgStyle],
+  imports: [CommonModule, ReactiveFormsModule, NgIf],
   templateUrl: './project-modal.component.html',
   styleUrl: './project-modal.component.scss',
 })

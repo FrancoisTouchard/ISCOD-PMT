@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { CommonModule, NgClass, NgIf } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/project.service';
 import { ToastService } from '../../services/toast.service';
@@ -14,7 +14,7 @@ import { Role } from '../../models/role.enum';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, ProjectModalComponent, NgClass, NgIf, RouterLink],
+  imports: [CommonModule, ProjectModalComponent, NgIf],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
