@@ -34,7 +34,6 @@ export class LoginComponent {
 
     this.userService.getUsers().subscribe((usersData) => {
       const usersArray = Object.values(usersData);
-      console.log('usersArray in login constructor', usersArray);
     });
   }
 
@@ -45,7 +44,6 @@ export class LoginComponent {
     const password = this.password.value;
     this.userService.getUsers().subscribe((usersData) => {
       const usersArray = Object.values(usersData);
-      console.log('usersData in login constructor', usersData);
       const matchingUser = usersArray.find(
         (user) => user.email === email && user.password === password
       );

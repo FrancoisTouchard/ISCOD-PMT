@@ -64,7 +64,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.projects = this.projectService.projects;
-          console.log('projets in loadprojjj', this.projects);
           this.loading = false;
         },
         error: () => {
@@ -102,7 +101,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          console.log('dataxxx', data);
           this.closeProjectCreationModal();
           this.loadProjects();
           this.toastService.showToast(`Projet "${name}" créé !`, 'success');

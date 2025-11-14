@@ -159,7 +159,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
         next: (tasks) => {
           this.taskService.tasks = tasks;
           this.loading = false;
-          console.log('Tâches chargées', tasks);
         },
         error: (err) => {
           console.error(err);
