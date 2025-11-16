@@ -9,6 +9,7 @@ module.exports = function (config) {
         { type: "html" },
         { type: "text-summary" },
         { type: "lcovonly" },
+        { type: "json-summary" },
       ],
       check: {
         global: {
@@ -19,5 +20,28 @@ module.exports = function (config) {
         },
       },
     },
+    reporters: ["progress", "kjhtml"],
+    browsers: ["Chrome"],
+    restartOnFileChange: true,
+
+    // Configuration spécifique pour CI (pour utiliser headless chrome)
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: "ChromeHeadless",
+        flags: [
+          "--no-sandbox",
+          "--disable-gpu",
+          "--disable-dev-shm-usage",
+          "--disable-software-rasterizer",
+          "--disable-extensions",
+        ],
+      },
+    },
+
+    // Timeout augmenté pour CI
+    browserNoActivityTimeout: 60000,
+    browserDisconnectTimeout: 10000,
+    browserDisconnectTolerance: 3,
+    captureTimeout: 210000,
   });
 };
