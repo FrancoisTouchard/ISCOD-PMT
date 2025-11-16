@@ -283,6 +283,119 @@ class TaskServiceImplTest {
     }
     
     @Test
+    void partialUpdate_UpdateAssignees_ShouldNotNotifyExistingAssignees() {
+        // Ajouter une assignation existante
+        TaskAssignment existingAssignment = new TaskAssignment(testTask, testUser, testProject);
+        testTask.getAssignments().add(existingAssignment);
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("assigneeIds", Arrays.asList(userId.toString()));
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(new ContributorId(userId, projectId)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        verify(emailService, never()).sendTaskAssignmentNotification(any(), any());
+    }
+    
+    @Test
+    void partialUpdate_UpdateAssignees_WithMultipleUsers_ShouldNotifyOnlyNew() {
+        UUID user2Id = UUID.randomUUID();
+        UUID user3Id = UUID.randomUUID();
+        
+        AppUser user2 = new AppUser();
+        user2.setId(user2Id);
+        user2.setEmail("user2@example.com");
+        
+        AppUser user3 = new AppUser();
+        user3.setId(user3Id);
+        user3.setEmail("user3@example.com");
+        
+        // user1 déjà assigné
+        TaskAssignment existingAssignment = new TaskAssignment(testTask, testUser, testProject);
+        testTask.getAssignments().add(existingAssignment);
+        
+        Contributor contributor1 = new Contributor();
+        contributor1.setUser(testUser);
+        
+        Contributor contributor2 = new Contributor();
+        contributor2.setUser(user2);
+        
+        Contributor contributor3 = new Contributor();
+        contributor3.setUser(user3);
+        
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("assigneeIds", Arrays.asList(userId.toString(), user2Id.toString(), user3Id.toString()));
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(new ContributorId(userId, projectId)))
+            .thenReturn(Optional.of(contributor1));
+        when(contributorRepository.findById(new ContributorId(user2Id, projectId)))
+            .thenReturn(Optional.of(contributor2));
+        when(contributorRepository.findById(new ContributorId(user3Id, projectId)))
+            .thenReturn(Optional.of(contributor3));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        verify(emailService, times(1)).sendTaskAssignmentNotification(testTask, user2);
+        verify(emailService, times(1)).sendTaskAssignmentNotification(testTask, user3);
+        verify(emailService, never()).sendTaskAssignmentNotification(eq(testTask), eq(testUser));
+        verify(emailService, times(2)).sendTaskAssignmentNotification(any(), any());
+    }
+    
+    @Test
+    void partialUpdate_UpdateAssigneesWithEmptyList_ShouldClearAssignments() {
+        TaskAssignment existingAssignment = new TaskAssignment(testTask, testUser, testProject);
+        testTask.getAssignments().add(existingAssignment);
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("assigneeIds", new ArrayList<>());
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertTrue(testTask.getAssignments().isEmpty());
+        verify(emailService, never()).sendTaskAssignmentNotification(any(), any());
+    }
+    
+    @Test
+    void partialUpdate_UpdateAssigneesWithInvalidUser_ShouldThrowException() {
+        UUID invalidUserId = UUID.randomUUID();
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("assigneeIds", Arrays.asList(invalidUserId.toString()));
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(new ContributorId(userId, projectId)))
+            .thenReturn(Optional.of(contributor));
+        when(contributorRepository.findById(new ContributorId(invalidUserId, projectId)))
+            .thenReturn(Optional.empty());
+        
+        assertThrows(ResourceNotFoundException.class, () -> {
+            taskService.partialUpdate(taskId, projectId, userId, updates);
+        });
+        
+        verify(taskRepository, never()).save(any());
+    }
+    
+    @Test
     void partialUpdate_WithInvalidTask_ShouldThrowException() {
         // Arrange
         Map<String, Object> updates = new HashMap<>();
@@ -293,4 +406,473 @@ class TaskServiceImplTest {
             taskService.partialUpdate(taskId, projectId, userId, updates);
         });
     }
+    
+    @Test
+    void partialUpdate_UpdateDueDateWithString_ShouldUpdateDate() {
+        Map<String, Object> updates = new HashMap<>();
+        LocalDate newDate = LocalDate.now().plusDays(10);
+        updates.put("dueDate", newDate.toString());
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertEquals(newDate, testTask.getDueDate());
+    }
+    
+    @Test
+    void partialUpdate_UpdateDueDateWithLocalDate_ShouldUpdateDate() {
+        Map<String, Object> updates = new HashMap<>();
+        LocalDate newDate = LocalDate.now().plusDays(15);
+        updates.put("dueDate", newDate);
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertEquals(newDate, testTask.getDueDate());
+    }
+    
+    @Test
+    void partialUpdate_UpdateEndDateWithString_ShouldUpdateDate() {
+        Map<String, Object> updates = new HashMap<>();
+        LocalDate newDate = LocalDate.now().plusDays(20);
+        updates.put("endDate", newDate.toString());
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertEquals(newDate, testTask.getEndDate());
+    }
+    
+    @Test
+    void partialUpdate_UpdateEndDateWithLocalDate_ShouldUpdateDate() {
+        Map<String, Object> updates = new HashMap<>();
+        LocalDate newDate = LocalDate.now().plusDays(25);
+        updates.put("endDate", newDate);
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertEquals(newDate, testTask.getEndDate());
+    }
+    
+    @Test
+    void partialUpdate_UpdateEndDateWithNull_ShouldSetNullDate() {
+        testTask.setEndDate(LocalDate.now().plusDays(5));
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("endDate", null);
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertNull(testTask.getEndDate());
+        verify(historyEntryService, times(1)).createHistoryEntry(
+            eq(testTask), 
+            eq(testUser), 
+            eq("endDate"), 
+            anyString(), 
+            eq("")
+        );
+    }
+    
+    @Test
+    void partialUpdate_UpdateAllFieldsAtOnce_ShouldHandleCorrectly() {
+        UUID newUserId = UUID.randomUUID();
+        AppUser newUser = new AppUser();
+        newUser.setId(newUserId);
+        newUser.setEmail("new@example.com");
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        Contributor newContributor = new Contributor();
+        newContributor.setUser(newUser);
+        
+        LocalDate newDueDate = LocalDate.now().plusDays(14);
+        LocalDate newEndDate = LocalDate.now().plusDays(21);
+        
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", "Completely New Name");
+        updates.put("description", "Completely New Description");
+        updates.put("dueDate", newDueDate);
+        updates.put("endDate", newEndDate);
+        updates.put("priority", "CRITICAL");
+        updates.put("status", "IN_PROGRESS");
+        updates.put("assigneeIds", Arrays.asList(newUserId.toString()));
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(new ContributorId(userId, projectId)))
+            .thenReturn(Optional.of(contributor));
+        when(contributorRepository.findById(new ContributorId(newUserId, projectId)))
+            .thenReturn(Optional.of(newContributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertNotNull(result);
+        verify(historyEntryService, times(7)).createHistoryEntry(any(), any(), any(), any(), any());
+        verify(emailService, times(1)).sendTaskAssignmentNotification(testTask, newUser);
+        verify(taskRepository, times(1)).save(testTask);
+    }
+    
+    @Test
+    void partialUpdate_WithSomeChangedAndSomeUnchangedValues_ShouldOnlyUpdateChanged() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", testTask.getName()); // inchangé
+        updates.put("description", "New Description"); // changé
+        updates.put("status", testTask.getStatus().toString()); // inchangé
+        updates.put("priority", "HIGH"); // changé
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        // Seulement 2 entrées d'historique (description et priority)
+        verify(historyEntryService, times(2)).createHistoryEntry(any(), any(), any(), any(), any());
+        verify(taskRepository, times(1)).save(testTask);
+    }
+    
+    @Test
+    void partialUpdate_UpdatePriorityToCRITICAL_ShouldWork() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("priority", "CRITICAL");
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertEquals(TaskPriority.CRITICAL, testTask.getPriority());
+    }
+    
+    @Test
+    void partialUpdate_UpdateStatusToBLOCKED_ShouldWork() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", "BLOCKED");
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertEquals(TaskStatus.BLOCKED, testTask.getStatus());
+    }
+    
+    @Test
+    void partialUpdate_ReassignToSameUsers_ShouldNotSendNotifications() {
+        TaskAssignment assignment1 = new TaskAssignment(testTask, testUser, testProject);
+        testTask.getAssignments().add(assignment1);
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("assigneeIds", Arrays.asList(userId.toString()));
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(new ContributorId(userId, projectId)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        verify(emailService, never()).sendTaskAssignmentNotification(any(), any());
+    }
+    
+    @Test
+    void partialUpdate_RemoveAllAssigneesAndAddNew_ShouldNotifyNewOnes() {
+        // Configuration initiale avec un assigné
+        TaskAssignment oldAssignment = new TaskAssignment(testTask, testUser, testProject);
+        testTask.getAssignments().add(oldAssignment);
+        
+        UUID newUserId = UUID.randomUUID();
+        AppUser newUser = new AppUser();
+        newUser.setId(newUserId);
+        newUser.setEmail("new@example.com");
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        Contributor newContributor = new Contributor();
+        newContributor.setUser(newUser);
+        
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("assigneeIds", Arrays.asList(newUserId.toString()));
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(new ContributorId(userId, projectId)))
+            .thenReturn(Optional.of(contributor));
+        when(contributorRepository.findById(new ContributorId(newUserId, projectId)))
+            .thenReturn(Optional.of(newContributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        verify(emailService, times(1)).sendTaskAssignmentNotification(testTask, newUser);
+        verify(emailService, never()).sendTaskAssignmentNotification(eq(testTask), eq(testUser));
+    }
+    
+    @Test
+    void partialUpdate_UpdateDueDateToPastDate_ShouldWork() {
+        Map<String, Object> updates = new HashMap<>();
+        LocalDate pastDate = LocalDate.now().minusDays(5);
+        updates.put("dueDate", pastDate);
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertEquals(pastDate, testTask.getDueDate());
+    }
+    
+    @Test
+    void partialUpdate_UpdateEndDateToBeforeStartDate_ShouldWork() {
+        testTask.setDueDate(LocalDate.now().plusDays(10));
+        
+        Map<String, Object> updates = new HashMap<>();
+        LocalDate earlyEndDate = LocalDate.now().plusDays(5);
+        updates.put("endDate", earlyEndDate);
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertEquals(earlyEndDate, testTask.getEndDate());
+    }
+    
+    @Test
+    void findAll_WithMultipleTasks_ShouldReturnAllTasks() {
+        Task task2 = new Task();
+        task2.setId(UUID.randomUUID());
+        task2.setName("Task 2");
+        
+        Task task3 = new Task();
+        task3.setId(UUID.randomUUID());
+        task3.setName("Task 3");
+        
+        List<Task> tasks = Arrays.asList(testTask, task2, task3);
+        when(taskRepository.findAll()).thenReturn(tasks);
+        
+        List<Task> result = taskService.findAll();
+        
+        assertNotNull(result);
+        assertEquals(3, result.size());
+    }
+    
+    @Test
+    void findTasksByProjectId_WithMultipleTasks_ShouldReturnAllProjectTasks() {
+        Task task2 = new Task();
+        task2.setProject(testProject);
+        
+        List<Task> tasks = Arrays.asList(testTask, task2);
+        when(taskRepository.findByProjectId(projectId)).thenReturn(tasks);
+        
+        List<Task> result = taskService.findTasksByProjectId(projectId);
+        
+        assertEquals(2, result.size());
+    }
+    
+    @Test
+    void addTask_WithAllPriorities_ShouldCreateTasks() {
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(testProject));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        // Test CRITICAL
+        taskService.addTask(projectId, "Task", "Desc", LocalDate.now(), 
+                           TaskPriority.CRITICAL, null, TaskStatus.TODO);
+        
+        // Test HIGH
+        taskService.addTask(projectId, "Task", "Desc", LocalDate.now(), 
+                           TaskPriority.HIGH, null, TaskStatus.TODO);
+        
+        // Test LOW
+        taskService.addTask(projectId, "Task", "Desc", LocalDate.now(), 
+                           TaskPriority.LOW, null, TaskStatus.TODO);
+        
+        verify(taskRepository, times(3)).save(any(Task.class));
+    }
+    
+    @Test
+    void addTask_WithAllStatuses_ShouldCreateTasks() {
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(testProject));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        // Test différents statuts
+        taskService.addTask(projectId, "Task", "Desc", LocalDate.now(), 
+                           TaskPriority.MEDIUM, null, TaskStatus.TODO);
+        
+        taskService.addTask(projectId, "Task", "Desc", LocalDate.now(), 
+                           TaskPriority.MEDIUM, null, TaskStatus.IN_PROGRESS);
+        
+        taskService.addTask(projectId, "Task", "Desc", LocalDate.now(), 
+                           TaskPriority.MEDIUM, null, TaskStatus.DONE);
+        
+        taskService.addTask(projectId, "Task", "Desc", LocalDate.now(), 
+                           TaskPriority.MEDIUM, null, TaskStatus.BLOCKED);
+        
+        verify(taskRepository, times(4)).save(any(Task.class));
+    }
+    
+    @Test
+    void partialUpdate_WithLongDescription_ShouldWork() {
+        Map<String, Object> updates = new HashMap<>();
+        String longDesc = "A".repeat(1000);
+        updates.put("description", longDesc);
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertNotNull(result);
+        verify(taskRepository, times(1)).save(testTask);
+    }
+    
+    @Test
+    void partialUpdate_WithSpecialCharactersInName_ShouldWork() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", "Task with special chars: @#$%^&*()");
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertNotNull(result);
+    }
+    
+    @Test
+    void partialUpdate_UpdateMultipleFields_ShouldUpdateAllFields() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", "Updated Name");
+        updates.put("description", "Updated Description");
+        updates.put("status", "IN_PROGRESS");
+        updates.put("priority", "HIGH");
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        verify(historyEntryService, times(4)).createHistoryEntry(any(), any(), any(), any(), any());
+        verify(taskRepository, times(1)).save(testTask);
+    }
+    
+    @Test
+    void partialUpdate_WithUnchangedValue_ShouldNotCreateHistoryEntry() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", testTask.getName()); // même valeur
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        verify(historyEntryService, never()).createHistoryEntry(any(), any(), any(), any(), any());
+        verify(taskRepository, times(1)).save(testTask);
+    }
+    
+    @Test
+    void partialUpdate_WithEmptyUpdates_ShouldNotThrowException() {
+        Map<String, Object> updates = new HashMap<>();
+        
+        Contributor contributor = new Contributor();
+        contributor.setUser(testUser);
+        
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(contributorRepository.findById(any(ContributorId.class)))
+            .thenReturn(Optional.of(contributor));
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+        
+        Task result = taskService.partialUpdate(taskId, projectId, userId, updates);
+        
+        assertNotNull(result);
+        verify(taskRepository, times(1)).save(testTask);
+        verify(historyEntryService, never()).createHistoryEntry(any(), any(), any(), any(), any());
+    }
+    
+    
+    
 }
