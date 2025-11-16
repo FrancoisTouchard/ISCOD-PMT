@@ -1,15 +1,13 @@
 <nav class="navbar header bg-primary">
-  <div class="container-fluid">
-    <div>
-      <button class="btn btn-primary" (click)="goToLoginPage()">
-        Connexion
-      </button>
-      <button class="btn btn-secondary" (click)="goToSigninPage()">
-        Inscription
-      </button>
-    </div>
+  <div class="container-fluid d-flex justify-content-end gap-2">
+    <button class="btn btn-light" (click)="goToSigninPage()">
+      Inscription
+    </button>
+    <button class="btn btn-light" (click)="goToLoginPage()">
+      Connexion
+    </button>
   </div>
 </nav>
-<div class="container mt-5">
+<div class="container mt-5 d-flex justify-content-center">
   <h1 class="mb-3">Inscrivez-vous ou connectez-vous</h1>
 </div>

@@ -1,11 +1,7 @@
 <nav class="navbar header bg-primary">
-  <div class="container-fluid">
-    <div>
-      <button class="btn btn-danger" (click)="logOut()">Déconnexion</button>
-      <button class="btn btn-light" (click)="goToHomePage()">
-        Mes Projets
-      </button>
-    </div>
+  <div class="container-fluid d-flex justify-content-end gap-2">
+    <button class="btn btn-light" (click)="goToHomePage()">Mes Projets</button>
+    <button class="btn btn-danger" (click)="logOut()">Déconnexion</button>
   </div>
 </nav>
 
