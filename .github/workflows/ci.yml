@@ -124,19 +124,29 @@ jobs:
       - name: ✅ Vérification du seuil de couverture Backend (60%)
         run: |
           if [ "$BUILD_TOOL" == "maven" ]; then
-            COVERAGE_FILE="target/site/jacoco/jacoco.csv"
+            COVERAGE_FILE="target/site/jacoco/jacoco-resources/jacoco.csv"
           else
             COVERAGE_FILE="build/reports/jacoco/test/jacocoTestReport.csv"
           fi
 
           if [ -f "$COVERAGE_FILE" ]; then
-            # Calcul de la couverture depuis JaCoCo CSV
-            COVERAGE=$(awk -F, '{instructions += $4 + $5; covered += $4} END {print (covered/instructions)*100}' "$COVERAGE_FILE")
-            echo "Couverture Backend: $COVERAGE%"
-            
+            # Récupère la ligne TOTAL
+            TOTAL_LINE=$(grep "^TOTAL" "$COVERAGE_FILE")
+
+            MISSED=$(echo "$TOTAL_LINE" | awk -F, '{print $4}')
+            COVERED=$(echo "$TOTAL_LINE" | awk -F, '{print $5}')
+
+            TOTAL=$((MISSED + COVERED))
+            if [ "$TOTAL" -eq 0 ]; then
+              COVERAGE=0
+            else
+              COVERAGE=$(echo "$COVERED * 100 / $TOTAL" | bc -l)
+            fi
+
+            echo "Couverture Backend (instructions) : $COVERAGE%"
+
             if (( $(echo "$COVERAGE < 60" | bc -l) )); then
               echo "⚠️ Attention: La couverture backend est inférieure à 60% ($COVERAGE%)"
-              # Ne pas faire échouer le build pour le moment
               exit 0
             else
               echo "✅ Couverture Backend OK: $COVERAGE%"

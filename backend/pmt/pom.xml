@@ -100,8 +100,8 @@
                     <goals>
                         <goal>report</goal>
                     </goals>
-                </execution>
-                <execution>
+              </execution> 
+                 <execution>
                     <id>jacoco-check</id>
                     <goals>
                         <goal>check</goal>
@@ -112,7 +112,7 @@
                                 <element>PACKAGE</element>
                                 <limits>
                                     <limit>
-                                        <counter>LINE</counter>
+                                        <counter>INSTRUCTION</counter>
                                         <value>COVEREDRATIO</value>
                                         <minimum>0.60</minimum>
                                     </limit>
