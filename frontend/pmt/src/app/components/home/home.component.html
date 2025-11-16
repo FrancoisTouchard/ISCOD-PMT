@@ -70,13 +70,22 @@
                 Voir
               </button>
               <button
-                *ngIf="currentUserRole === 'ADMINISTRATEUR'"
+                *ngIf="currentUserRole === 'ADMINISTRATEUR'; else fakeDelete"
                 class="btn btn-sm btn-danger rounded-pill"
                 (click)="deleteProject(project.id)"
                 title="Supprimer le projet"
               >
                 Supprimer
               </button>
+              <!-- Faux bouton invisible pour maintenir l'alignement -->
+              <ng-template #fakeDelete>
+                <button
+                  class="btn btn-sm invisible"
+                  style="pointer-events: none"
+                >
+                  Supprimer
+                </button>
+              </ng-template>
             </div>
           </td>
         </tr>
