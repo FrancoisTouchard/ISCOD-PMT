@@ -49,6 +49,10 @@ public class Project {
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonManagedReference("project-history")
 	private Set<HistoryEntry> historyEntries = new HashSet<>();
+	
+	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference("project")
+	private Set<Task> tasks = new HashSet<>();
 
 	public UUID getId() {
 		return id;
@@ -96,6 +100,14 @@ public class Project {
 
 	public void setContributors(Set<Contributor> contributors) {
 		this.contributors = contributors;
+	}
+
+	public Set<Task> getTasks() {
+		return tasks;
+	}
+
+	public void setTasks(Set<Task> tasks) {
+		this.tasks = tasks;
 	}
 
 }
