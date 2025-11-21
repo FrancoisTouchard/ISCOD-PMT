@@ -13,15 +13,7 @@ services:
     networks:
       - pmt-network
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:8080/actuator/health",
-        ]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -39,20 +31,6 @@ services:
       - backend
     networks:
       - pmt-network
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:80",
-        ]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 10s
 
 networks:
   pmt-network:
