@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iscod.pmt.models.HistoryEntry;
 import com.iscod.pmt.services.HistoryEntryService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/history")
@@ -23,18 +25,21 @@ public class HistoryEntryController {
 	@Autowired
 	private HistoryEntryService historyEntryService;
 	
+	@Operation(summary = "Get all history entries", description = "Returns all task updates history entries")
 	@GetMapping
 	@ResponseStatus(code = HttpStatus.OK)
 	public List<HistoryEntry> findAll(){
 		return historyEntryService.findAll();
 	}
 	
+	@Operation(summary = "Get all history entries of a project by projectId", description = "Returns all task updates history entries of the given project")
 	@GetMapping("/project/{projectId}")
 	@ResponseStatus(code = HttpStatus.OK)
 	public List<HistoryEntry> findAllEntriesByProjectIdOrderedByDate(@PathVariable UUID projectId){
 		return historyEntryService.findAllEntriesByProjectIdOrderedByDate(projectId);
 	}
 	
+	@Operation(summary = "Get all history entries of a task by taskId", description = "Returns all task updates history entries of the given task")
 	@GetMapping("/task/{taskId}")
 	@ResponseStatus(code = HttpStatus.OK)
 	public List<HistoryEntry> findAllEntriesByTaskIdOrderedByDate(@PathVariable UUID taskId){

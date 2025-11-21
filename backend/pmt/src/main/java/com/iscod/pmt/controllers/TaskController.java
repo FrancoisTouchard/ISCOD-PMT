@@ -14,6 +14,8 @@ import com.iscod.pmt.models.TaskPriority;
 import com.iscod.pmt.models.TaskStatus;
 import com.iscod.pmt.services.TaskService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/tasks")
@@ -22,17 +24,20 @@ public class TaskController {
 	@Autowired
 	private TaskService taskService;
 	
+	@Operation(summary = "Get all tasks", description = "Returns all tasks of the website")
 	@GetMapping
 	public List<Task> findAll(){
 		return taskService.findAll();
 	}
 
+	@Operation(summary = "Get all tasks of a project by project id")
 	@GetMapping("/project/{projectId}")
 	@ResponseStatus(code = HttpStatus.OK)
 	public List<Task> getTasksByProjectId(@PathVariable UUID projectId) {
 		return taskService.findTasksByProjectId(projectId);
 	}
-	   
+	
+	@Operation(summary = "Create a new task in a project by project id")
 	@PostMapping("/project/{projectId}")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public Task addTask(@PathVariable UUID projectId, @RequestBody Map<String, Object> taskData) {
@@ -69,6 +74,7 @@ public class TaskController {
 	    	return task;
 	}
 	
+	@Operation(summary = "Partial update of a task in a project by project id and task id")
 	@PatchMapping("/project/{projectId}/{taskId}")
 	@ResponseStatus(code = HttpStatus.OK)
 	public Task partialUpdate(
@@ -79,7 +85,8 @@ public class TaskController {
 	) {
 	    return taskService.partialUpdate(taskId, projectId, currentUserId, updates);
 	}
-	   
+	
+	@Operation(summary = "Delete a task by its id")
 	@DeleteMapping("/{taskId}")
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable UUID taskId) {

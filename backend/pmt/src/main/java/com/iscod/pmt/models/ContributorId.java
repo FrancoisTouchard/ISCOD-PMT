@@ -3,11 +3,13 @@ package com.iscod.pmt.models;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 // classe permettant de générer une clé composite représentant l'id du contributeur (= id utilisateur + id projet)
-
+@Schema(description = "Associative entity that links the AppUser id to the project id where he/she is a Contributor.")
 @Embeddable
 public class ContributorId implements Serializable {
 	private static final long serialVersionUID = 1L;

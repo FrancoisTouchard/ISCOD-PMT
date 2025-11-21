@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iscod.pmt.models.AppUser;
 import com.iscod.pmt.services.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/users")
@@ -29,23 +31,27 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
+	@Operation(summary = "Get all users", description = "Returns all users of the website")
 	@GetMapping
 	public List<AppUser> findAll(){
 		return userService.findAll();
 	}
 	
+	@Operation(summary = "Get a user by its id")
 	@GetMapping("/{id}")
 	public AppUser findById(@PathVariable UUID id) {
 		
 		return userService.findById(id);
 	}
 	
-	@GetMapping("/{email}")
+	@Operation(summary = "Get a user by its email address")
+	@GetMapping("/email/{email}")
 	public AppUser findByEmail(@PathVariable String email) {
 		
 		return userService.findByEmail(email);
 	}
 	
+	@Operation(summary = "Create a new user")
 	@PostMapping
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public UUID create(@RequestBody AppUser user) {
@@ -53,6 +59,7 @@ public class UserController {
 		return userService.create(user);
 	}
 	
+	@Operation(summary = "Complete update of a user by its id", description = "All fields are required.")
 	@PutMapping("/{id}")
 	@ResponseStatus(code = HttpStatus.OK)
 	public void update(@PathVariable UUID id, @RequestBody AppUser user) {
@@ -60,6 +67,7 @@ public class UserController {
 		userService.update(id, user);
 	}
 	
+	@Operation(summary = "Partial update of a user by its id")
 	@PatchMapping("/{id}")
 	@ResponseStatus(code = HttpStatus.OK)
 	public void partialUpdate(@PathVariable UUID id, @RequestBody Map<String, Object> updates) {
@@ -67,6 +75,7 @@ public class UserController {
 		userService.partialUpdate(id, updates);
 	}
 	
+	@Operation(summary = "Delete a user by its id")
 	@DeleteMapping("/{id}")
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable UUID id) {

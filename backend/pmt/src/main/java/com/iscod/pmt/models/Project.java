@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,34 +19,37 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
-@Table(name="project")
+@Table(name = "project")
 @Entity
 public class Project {
-	
+
 	@Id
 	@GeneratedValue
 	private UUID id;
-	
-	@NotNull(message="Un projet doit avoir un nom.")
+
+	@NotNull(message = "Un projet doit avoir un nom.")
 	private String name;
-	
+
 	private String description;
-	
+
 	private LocalDate startDate;
-	
+
+	@Schema(description = "User who created the Project.")
 	@ManyToOne
 	@JoinColumn(name = "id_creator")
 	@JsonBackReference("creator")
 	private AppUser creator;
-	
+
+	@Schema(description = "All the users that have been given a Role on the Project.")
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
 	@JsonManagedReference("project")
 	private Set<Contributor> contributors = new HashSet<>();
 	
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("project-history")
-    private Set<HistoryEntry> historyEntries = new HashSet<>();
-	
+	@Schema(description = "Record of the modifications made on the Project's Tasks")
+	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference("project-history")
+	private Set<HistoryEntry> historyEntries = new HashSet<>();
+
 	public UUID getId() {
 		return id;
 	}

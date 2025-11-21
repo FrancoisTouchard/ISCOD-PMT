@@ -1,8 +1,11 @@
 package com.iscod.pmt.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
+@Schema(description = "Entity representing an assignment with the data about the assigned user and the associated Project and Task.")
 @Entity
 @Table(name = "task_assignment")
 public class TaskAssignment {

@@ -13,6 +13,8 @@ import com.iscod.pmt.models.ContributorId;
 import com.iscod.pmt.models.Role;
 import com.iscod.pmt.services.ContributorService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/contributors")
@@ -21,18 +23,21 @@ public class ContributorController {
 	@Autowired
 	private ContributorService contributorService;
 	
-	   @GetMapping("/project/{projectId}")
+		@Operation(summary = "Get all contributors of a project by project id")
+	   	@GetMapping("/project/{projectId}")
 	    @ResponseStatus(code = HttpStatus.OK)
 	    public List<Contributor> getContributeursByProjet(@PathVariable UUID projectId) {
 	        return contributorService.findByIdIdProject(projectId);
 	    }
 
+		@Operation(summary = "Get all contributors of a user by user id", description = "Allows you to know all the projects where this user has a role")
 	    @GetMapping("/user/{userId}")
 	    @ResponseStatus(code = HttpStatus.OK)
 	    public List<Contributor> getContributeursByUtilisateur(@PathVariable UUID userId) {
 	        return contributorService.findByIdIdUser(userId);
 	    }
 	    
+		@Operation(summary = "Create a new contributor by project id", description = "Add a user to the project using its email address and assign it a role")
 	    @PostMapping("/project/{projectId}")
 	    @ResponseStatus(code = HttpStatus.CREATED)
 	    public Contributor addContributor(
@@ -47,6 +52,7 @@ public class ContributorController {
 	    }
 	   
 	    
+		@Operation(summary = "Partial update of a contributor by project id and user id")
 	    @PatchMapping("/project/{projectId}/user/{userId}")
 	    @ResponseStatus(code = HttpStatus.OK)
 	    public Contributor partialUpdate(
@@ -64,6 +70,7 @@ public class ContributorController {
 	        return contributorService.partialUpdate(contributorId, updates);
 	    }
 	    
+		@Operation(summary = "Delete a contributor by project id and user id")
 	    @DeleteMapping("/project/{projectId}/user/{userId}")
 		@ResponseStatus(code = HttpStatus.NO_CONTENT)
 		public void delete(@PathVariable UUID projectId, @PathVariable UUID userId) {

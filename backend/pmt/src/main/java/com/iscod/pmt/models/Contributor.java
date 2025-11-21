@@ -3,6 +3,7 @@ package com.iscod.pmt.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,10 +13,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
+@Schema(description = "Associates a user to a project with a specific role")
 @Table(name = "contributor")
 @Entity
 public class Contributor {
     
+	@Schema(description = "Composite key consisting in an object with two properties representing the user id and the project id")
     @EmbeddedId
     private ContributorId id;
     
@@ -31,6 +34,7 @@ public class Contributor {
     @JsonBackReference("project")
     private Project project;
     
+    @Schema(description = "Conditions the read & write rights in a given project", example = "MEMBRE")
     @Enumerated(EnumType.STRING)
     private Role role;
     

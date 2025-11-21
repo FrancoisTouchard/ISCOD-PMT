@@ -8,9 +8,11 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+@Schema(description = "Represents a Task within a Project")
 @Table(name = "task")
 @Entity
 public class Task {
@@ -40,10 +42,12 @@ public class Task {
     @JsonBackReference("project")
     private Project project;
     
+    @Schema(description = "Contains the information about the AppUser being assigned.")
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("task-assignments")
     private Set<TaskAssignment> assignments = new HashSet<>();
     
+    @Schema(description = "Record of all the modifications made on the Task.")
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("task-history")
     private Set<HistoryEntry> historyEntries = new HashSet<>();

@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Embeddable;
 
+@Schema(description = "Associative entity that creates an id linking the assigned AppUser id, and the associated Project and Task ids.")
 @Embeddable
 public class TaskAssignmentId implements Serializable {
     
